@@ -81,6 +81,16 @@
       color: var(--app-muted);
       min-width: 64px;
     }
+    .fit-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--app-border);
+      white-space: nowrap;
+    }
+    .fit-pill.ok { color: #2dd4bf; border-color: rgba(45,212,191,0.4); background: rgba(45,212,191,0.08); }
+    .fit-pill.warn { color: #f87171; border-color: rgba(248,113,113,0.45); background: rgba(248,113,113,0.1); }
 
     .layout {
       display: grid;
@@ -109,7 +119,20 @@
       text-transform: uppercase;
       letter-spacing: 1.2px;
       color: var(--app-accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
     }
+    .group > h3 .chevron {
+      font-size: 11px;
+      color: var(--app-muted);
+      transition: transform 0.15s;
+    }
+    .group.collapsed > h3 { margin-bottom: 0; }
+    .group.collapsed > h3 .chevron { transform: rotate(-90deg); }
+    .group.collapsed .group-body { display: none; }
     .field { margin-bottom: 11px; }
     .field:last-child { margin-bottom: 0; }
     .field label {
@@ -234,6 +257,33 @@
       min-height: 297mm;
       padding: 11mm 12mm;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+    .page-guide {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 1px dashed rgba(220, 38, 38, 0.5);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .page-guide span {
+      position: absolute;
+      right: 6px;
+      top: -8px;
+      font-size: 8px;
+      font-weight: 600;
+      color: #dc2626;
+      background: #fff;
+      padding: 0 4px;
+      font-family: "Inter", system-ui, sans-serif;
+      letter-spacing: 0.4px;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; height: auto; }
+      .form-pane { border-right: none; border-bottom: 1px solid var(--app-border); max-height: 65vh; }
+      .preview-pane { overflow-x: auto; padding: 16px; }
     }
 
     /* ============================================================
@@ -354,6 +404,7 @@
         padding: 0;
         box-shadow: none;
       }
+      .page-guide { display: none !important; }
       .resume section { page-break-inside: avoid; }
       .resume li, .resume .job-head { page-break-inside: avoid; }
     }
@@ -362,6 +413,7 @@
 <body>
   <div class="toolbar">
     <div class="brand"><span>Resume Builder</span></div>
+    <span class="fit-pill" id="fitPill"></span>
     <span class="saved-pill" id="savedPill"></span>
     <button class="btn" id="btnImport">Import JSON</button>
     <button class="btn" id="btnExport">Export JSON</button>
@@ -373,7 +425,7 @@
   <div class="layout">
     <div class="form-pane" id="formPane"></div>
     <div class="preview-pane">
-      <div class="page">
+      <div class="page" id="page">
         <div class="resume" id="resume"></div>
       </div>
     </div>
@@ -443,6 +495,10 @@
   };
 
   const STORAGE_KEY = "resumeData";
+  const COLLAPSE_KEY = "resumeCollapse";
+
+  let collapseState = {};
+  try { collapseState = JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {}; } catch (e) { collapseState = {}; }
 
   /* ============================================================
      STATE
@@ -587,6 +643,44 @@
     parts.push(eduHtml);
 
     r.innerHTML = parts.join("");
+    requestAnimationFrame(updatePageFit);
+  }
+
+  /* ============================================================
+     PAGE-FIT MEASUREMENT + PAGE-BREAK GUIDES
+     ============================================================ */
+  const PX_PER_MM = 96 / 25.4;
+  const USABLE_MM = 297 - 11 - 11;       // A4 height minus top+bottom margins
+  const USABLE_PX = USABLE_MM * PX_PER_MM;
+  const PAD_TOP_PX = 11 * PX_PER_MM;
+
+  function updatePageFit() {
+    const resume = document.getElementById("resume");
+    const page = document.getElementById("page");
+    const pill = document.getElementById("fitPill");
+    if (!resume || !page || !pill) return;
+
+    const h = resume.offsetHeight;
+    const pages = Math.max(1, Math.ceil(h / USABLE_PX - 0.002));
+
+    pill.classList.remove("ok", "warn");
+    if (pages <= 2) {
+      pill.classList.add("ok");
+      pill.textContent = pages === 1 ? "\u2713 Fits 1 page" : "\u2713 Fits 2 pages";
+    } else {
+      pill.classList.add("warn");
+      pill.textContent = "\u26A0 " + pages + " pages \u2014 trim to fit";
+    }
+
+    // Redraw page-break guide lines inside the preview page.
+    page.querySelectorAll(".page-guide").forEach(g => g.remove());
+    for (let n = 1; n < pages; n++) {
+      const guide = el("div", { class: "page-guide" }, [
+        el("span", { text: "page " + n + " / " + (n + 1) })
+      ]);
+      guide.style.top = (PAD_TOP_PX + n * USABLE_PX) + "px";
+      page.appendChild(guide);
+    }
   }
 
   /* ============================================================
@@ -607,6 +701,22 @@
     arr.splice(to, 0, x);
   }
 
+  function dup(arr, i) { arr.splice(i + 1, 0, clone(arr[i])); }
+
+  function makeGroup(title) {
+    const body = el("div", { class: "group-body" });
+    const chevron = el("span", { class: "chevron", html: "&#9662;" });
+    const h3 = el("h3", {}, [el("span", { text: title }), chevron]);
+    const collapsed = collapseState[title] === true;
+    const group = el("div", { class: "group" + (collapsed ? " collapsed" : "") }, [h3, body]);
+    h3.addEventListener("click", () => {
+      const isCol = group.classList.toggle("collapsed");
+      collapseState[title] = isCol;
+      try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(collapseState)); } catch (e) { /* ignore */ }
+    });
+    return { group, body };
+  }
+
   function textField(label, value, oninput, multiline) {
     const input = multiline
       ? el("textarea", { rows: 3 })
@@ -616,12 +726,14 @@
     return el("div", { class: "field" }, [el("label", { text: label }), input]);
   }
 
-  function ctrlBtns(idx, len, onUp, onDown, onDel) {
-    return [
+  function ctrlBtns(idx, len, onUp, onDown, onDel, onDup) {
+    const btns = [
       el("button", { class: "icon-btn", title: "Move up", disabled: idx === 0, onclick: onUp, html: "&#9650;" }),
-      el("button", { class: "icon-btn", title: "Move down", disabled: idx === len - 1, onclick: onDown, html: "&#9660;" }),
-      el("button", { class: "icon-btn del", title: "Remove", onclick: onDel, html: "&times;" })
+      el("button", { class: "icon-btn", title: "Move down", disabled: idx === len - 1, onclick: onDown, html: "&#9660;" })
     ];
+    if (onDup) btns.push(el("button", { class: "icon-btn", title: "Duplicate", onclick: onDup, html: "&#10697;" }));
+    btns.push(el("button", { class: "icon-btn del", title: "Remove", onclick: onDel, html: "&times;" }));
+    return btns;
   }
 
   function renderForm() {
@@ -629,9 +741,9 @@
     pane.innerHTML = "";
 
     /* ---- Header group ---- */
-    const headerGroup = el("div", { class: "group" }, [el("h3", { text: "Header" })]);
-    headerGroup.appendChild(textField("Full name", data.name, v => update(["name"], v)));
-    headerGroup.appendChild(textField("Title / headline", data.title, v => update(["title"], v), true));
+    const hg = makeGroup("Header");
+    hg.body.appendChild(textField("Full name", data.name, v => update(["name"], v)));
+    hg.body.appendChild(textField("Title / headline", data.title, v => update(["title"], v), true));
 
     const contactsWrap = el("div");
     contactsWrap.appendChild(el("label", { class: "", text: "Contact items", style: "display:block;font-size:11px;font-weight:600;color:var(--app-muted);margin:6px 0 6px;" }));
@@ -642,7 +754,8 @@
         ...ctrlBtns(i, data.contacts.length,
           () => { move(data.contacts, i, i - 1); save(); renderForm(); renderPreview(); },
           () => { move(data.contacts, i, i + 1); save(); renderForm(); renderPreview(); },
-          () => { data.contacts.splice(i, 1); save(); renderForm(); renderPreview(); })
+          () => { data.contacts.splice(i, 1); save(); renderForm(); renderPreview(); },
+          () => { dup(data.contacts, i); save(); renderForm(); renderPreview(); })
       ]);
       item.appendChild(head);
       item.appendChild(textField("Text", c.text, v => update(["contacts", i, "text"], v)));
@@ -659,22 +772,21 @@
       class: "add-btn", text: "+ Add contact item",
       onclick: () => { data.contacts.push({ text: "", href: "", break: false }); save(); renderForm(); renderPreview(); }
     }));
-    headerGroup.appendChild(contactsWrap);
-    pane.appendChild(headerGroup);
+    hg.body.appendChild(contactsWrap);
+    pane.appendChild(hg.group);
 
     /* ---- Bold hint ---- */
-    pane.appendChild(el("div", { class: "group" }, [
-      el("h3", { text: "Formatting" }),
-      el("div", { class: "hint", html: "Wrap text in <code>**double asterisks**</code> to make it <strong>bold</strong> in the resume. Works in the summary, skill values, experience bullets, project titles/body, and education." })
-    ]));
+    const fg = makeGroup("Formatting");
+    fg.body.appendChild(el("div", { class: "hint", html: "Wrap text in <code>**double asterisks**</code> to make it <strong>bold</strong> in the resume. Works in the summary, skill values, experience bullets, project titles/body, and education." }));
+    pane.appendChild(fg.group);
 
     /* ---- Summary ---- */
-    const sumGroup = el("div", { class: "group" }, [el("h3", { text: "Summary" })]);
-    sumGroup.appendChild(textField("Summary paragraph", data.summary, v => update(["summary"], v), true));
-    pane.appendChild(sumGroup);
+    const sg = makeGroup("Summary");
+    sg.body.appendChild(textField("Summary paragraph", data.summary, v => update(["summary"], v), true));
+    pane.appendChild(sg.group);
 
     /* ---- Skills ---- */
-    const skillsGroup = el("div", { class: "group" }, [el("h3", { text: "Skills" })]);
+    const skg = makeGroup("Skills");
     data.skills.forEach((s, i) => {
       const item = el("div", { class: "item" });
       item.appendChild(el("div", { class: "item-head" }, [
@@ -682,20 +794,21 @@
         ...ctrlBtns(i, data.skills.length,
           () => { move(data.skills, i, i - 1); save(); renderForm(); renderPreview(); },
           () => { move(data.skills, i, i + 1); save(); renderForm(); renderPreview(); },
-          () => { data.skills.splice(i, 1); save(); renderForm(); renderPreview(); })
+          () => { data.skills.splice(i, 1); save(); renderForm(); renderPreview(); },
+          () => { dup(data.skills, i); save(); renderForm(); renderPreview(); })
       ]));
       item.appendChild(textField("Category", s.k, v => update(["skills", i, "k"], v)));
       item.appendChild(textField("Skills (value)", s.v, v => update(["skills", i, "v"], v), true));
-      skillsGroup.appendChild(item);
+      skg.body.appendChild(item);
     });
-    skillsGroup.appendChild(el("button", {
+    skg.body.appendChild(el("button", {
       class: "add-btn", text: "+ Add skill row",
       onclick: () => { data.skills.push({ k: "", v: "" }); save(); renderForm(); renderPreview(); }
     }));
-    pane.appendChild(skillsGroup);
+    pane.appendChild(skg.group);
 
     /* ---- Experience ---- */
-    const expGroup = el("div", { class: "group" }, [el("h3", { text: "Experience" })]);
+    const eg = makeGroup("Experience");
     data.experience.forEach((job, i) => {
       const item = el("div", { class: "item" });
       item.appendChild(el("div", { class: "item-head" }, [
@@ -703,7 +816,8 @@
         ...ctrlBtns(i, data.experience.length,
           () => { move(data.experience, i, i - 1); save(); renderForm(); renderPreview(); },
           () => { move(data.experience, i, i + 1); save(); renderForm(); renderPreview(); },
-          () => { data.experience.splice(i, 1); save(); renderForm(); renderPreview(); })
+          () => { data.experience.splice(i, 1); save(); renderForm(); renderPreview(); },
+          () => { dup(data.experience, i); save(); renderForm(); renderPreview(); })
       ]));
       item.appendChild(textField("Job title", job.title, v => update(["experience", i, "title"], v)));
       item.appendChild(textField("Dates", job.date, v => update(["experience", i, "date"], v)));
@@ -719,7 +833,8 @@
         const ctrls = el("div", { class: "bullet-ctrls" }, ctrlBtns(j, job.bullets.length,
           () => { move(job.bullets, j, j - 1); save(); renderForm(); renderPreview(); },
           () => { move(job.bullets, j, j + 1); save(); renderForm(); renderPreview(); },
-          () => { job.bullets.splice(j, 1); save(); renderForm(); renderPreview(); }));
+          () => { job.bullets.splice(j, 1); save(); renderForm(); renderPreview(); },
+          () => { dup(job.bullets, j); save(); renderForm(); renderPreview(); }));
         bWrap.appendChild(el("div", { class: "bullet-row" }, [ta, ctrls]));
       });
       bWrap.appendChild(el("button", {
@@ -727,16 +842,16 @@
         onclick: () => { job.bullets.push(""); save(); renderForm(); renderPreview(); }
       }));
       item.appendChild(bWrap);
-      expGroup.appendChild(item);
+      eg.body.appendChild(item);
     });
-    expGroup.appendChild(el("button", {
+    eg.body.appendChild(el("button", {
       class: "add-btn", text: "+ Add role",
       onclick: () => { data.experience.push({ title: "", date: "", org: "", bullets: [""] }); save(); renderForm(); renderPreview(); }
     }));
-    pane.appendChild(expGroup);
+    pane.appendChild(eg.group);
 
     /* ---- Projects ---- */
-    const projGroup = el("div", { class: "group" }, [el("h3", { text: "Key Projects" })]);
+    const pg = makeGroup("Key Projects");
     data.projects.forEach((p, i) => {
       const item = el("div", { class: "item" });
       item.appendChild(el("div", { class: "item-head" }, [
@@ -744,20 +859,21 @@
         ...ctrlBtns(i, data.projects.length,
           () => { move(data.projects, i, i - 1); save(); renderForm(); renderPreview(); },
           () => { move(data.projects, i, i + 1); save(); renderForm(); renderPreview(); },
-          () => { data.projects.splice(i, 1); save(); renderForm(); renderPreview(); })
+          () => { data.projects.splice(i, 1); save(); renderForm(); renderPreview(); },
+          () => { dup(data.projects, i); save(); renderForm(); renderPreview(); })
       ]));
       item.appendChild(textField("Title (bold)", p.title, v => update(["projects", i, "title"], v)));
       item.appendChild(textField("Body", p.body, v => update(["projects", i, "body"], v), true));
-      projGroup.appendChild(item);
+      pg.body.appendChild(item);
     });
-    projGroup.appendChild(el("button", {
+    pg.body.appendChild(el("button", {
       class: "add-btn", text: "+ Add project",
       onclick: () => { data.projects.push({ title: "", body: "" }); save(); renderForm(); renderPreview(); }
     }));
-    pane.appendChild(projGroup);
+    pane.appendChild(pg.group);
 
     /* ---- Education ---- */
-    const eduGroup = el("div", { class: "group" }, [el("h3", { text: "Education" })]);
+    const edg = makeGroup("Education");
     data.education.forEach((e, i) => {
       const item = el("div", { class: "item" });
       item.appendChild(el("div", { class: "item-head" }, [
@@ -765,17 +881,18 @@
         ...ctrlBtns(i, data.education.length,
           () => { move(data.education, i, i - 1); save(); renderForm(); renderPreview(); },
           () => { move(data.education, i, i + 1); save(); renderForm(); renderPreview(); },
-          () => { data.education.splice(i, 1); save(); renderForm(); renderPreview(); })
+          () => { data.education.splice(i, 1); save(); renderForm(); renderPreview(); },
+          () => { dup(data.education, i); save(); renderForm(); renderPreview(); })
       ]));
       item.appendChild(textField("Degree / institution", e.degree, v => update(["education", i, "degree"], v), true));
       item.appendChild(textField("Dates", e.date, v => update(["education", i, "date"], v)));
-      eduGroup.appendChild(item);
+      edg.body.appendChild(item);
     });
-    eduGroup.appendChild(el("button", {
+    edg.body.appendChild(el("button", {
       class: "add-btn", text: "+ Add education entry",
       onclick: () => { data.education.push({ degree: "", date: "" }); save(); renderForm(); renderPreview(); }
     }));
-    pane.appendChild(eduGroup);
+    pane.appendChild(edg.group);
   }
 
   /* ============================================================
