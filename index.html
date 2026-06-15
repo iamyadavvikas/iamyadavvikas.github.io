@@ -6,12 +6,19 @@
   <title>Vikas Yadav — Senior SRE / DevOps Engineer</title>
   <meta name="description" content="Vikas Yadav — Senior SRE / DevOps Engineer. Platform & Infrastructure, AWS, Terraform, Observability, MLOps. 4 years at Shutterfly on the Photos & Media platform." />
   <meta name="author" content="Vikas Yadav" />
+  <meta name="theme-color" content="#0b0e14" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="keywords" content="SRE, DevOps, Platform Engineer, AWS, Terraform, Packer, ECS, Splunk, Observability, MLOps, Hyderabad" />
+  <link rel="canonical" href="https://iamyadavvikas.github.io/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Vikas Yadav — Senior SRE / DevOps Engineer" />
   <meta property="og:description" content="Platform & Infrastructure SRE/DevOps · AWS · Terraform · Observability · MLOps" />
   <meta property="og:url" content="https://iamyadavvikas.github.io/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Vikas Yadav — Senior SRE / DevOps Engineer" />
+  <meta name="twitter:description" content="Platform & Infrastructure SRE/DevOps · AWS · Terraform · Observability · MLOps" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,6 +27,8 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
 </head>
 <body>
+  <a class="skip-link" href="#about">Skip to content</a>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
   <header class="nav">
     <div class="nav-inner">
       <a href="#top" class="brand">VY<span>.</span></a>
@@ -40,6 +49,7 @@
       <div class="hero-inner">
         <p class="eyebrow">Site Reliability &amp; DevOps Engineer</p>
         <h1>Vikas Yadav</h1>
+        <p class="role-line">I keep <span class="rotate" id="rotateWord">production</span> reliable.</p>
         <p class="tagline">
           Platform &amp; Infrastructure SRE/DevOps engineer — I own the Terraform that runs
           the AWS estate behind a large Photos &amp; Media platform, build observability
@@ -290,6 +300,47 @@
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
     sections.forEach(s => obs.observe(s));
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Scroll-reveal: fade/slide elements in as they enter the viewport
+    if (!reduceMotion) {
+      const revealEls = document.querySelectorAll(
+        '.section-head, .about-text, .about-card, .skill-card, .job, .project-card, .edu-card, .contact-link, .contact-lead, .stat'
+      );
+      revealEls.forEach((el, i) => {
+        el.classList.add('reveal');
+        el.style.transitionDelay = (Math.min(i % 6, 5) * 60) + 'ms';
+      });
+      const revObs = new IntersectionObserver((entries, o) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('in'); o.unobserve(e.target); }
+        });
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
+      revealEls.forEach(el => revObs.observe(el));
+    }
+
+    // Scroll progress bar
+    const bar = document.getElementById('scrollProgress');
+    const onScroll = () => {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // Rotating role word in hero
+    if (!reduceMotion) {
+      const words = ['production', 'pipelines', 'observability', 'infrastructure', 'on-call'];
+      const node = document.getElementById('rotateWord');
+      let i = 0;
+      setInterval(() => {
+        i = (i + 1) % words.length;
+        node.classList.add('swap');
+        setTimeout(() => { node.textContent = words[i]; node.classList.remove('swap'); }, 280);
+      }, 2600);
+    }
   </script>
 </body>
 </html>
