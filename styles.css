@@ -338,6 +338,51 @@ code {
 }
 .stat span { color: var(--muted); font-size: 0.85rem; }
 
+/* Shared gradient hover accent on cards */
+.stat,
+.skill-card,
+.project-card,
+.job,
+.edu-card,
+.contact-link {
+  position: relative;
+  overflow: hidden;
+}
+.stat::before,
+.skill-card::before,
+.project-card::before,
+.job::before,
+.edu-card::before,
+.contact-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--grad);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.stat:hover::before,
+.skill-card:hover::before,
+.project-card:hover::before,
+.job:hover::before,
+.edu-card:hover::before,
+.contact-link:hover::before {
+  transform: scaleX(1);
+}
+.stat:hover,
+.edu-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+}
+.stat,
+.edu-card {
+  transition: transform 0.18s, border-color 0.2s;
+}
+
 /* SECTIONS */
 .section {
   max-width: var(--max);
