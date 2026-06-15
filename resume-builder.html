@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Builder — Vikas Yadav</title>
+  <style>
+    /* ============================================================
+       APP CHROME (screen only)
+       ============================================================ */
+    :root {
+      --app-bg: #0e1220;
+      --app-panel: #171c2e;
+      --app-panel-2: #1f2540;
+      --app-border: #2c3357;
+      --app-text: #e6e9f5;
+      --app-muted: #9aa3c4;
+      --app-accent: #2dd4bf;
+      --app-accent-2: #38bdf8;
+      --app-danger: #f87171;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--app-bg);
+      color: var(--app-text);
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 10px 16px;
+      background: rgba(14, 18, 32, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--app-border);
+    }
+    .toolbar .brand {
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-right: auto;
+      font-size: 14px;
+    }
+    .toolbar .brand span {
+      background: linear-gradient(135deg, #2dd4bf 0%, #38bdf8 60%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .btn {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--app-text);
+      background: var(--app-panel-2);
+      border: 1px solid var(--app-border);
+      border-radius: 8px;
+      padding: 7px 13px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.05s, background 0.15s;
+    }
+    .btn:hover { border-color: var(--app-accent); }
+    .btn:active { transform: translateY(1px); }
+    .btn.primary {
+      background: linear-gradient(135deg, #2dd4bf 0%, #38bdf8 100%);
+      color: #06121a;
+      border: none;
+    }
+    .btn.danger:hover { border-color: var(--app-danger); color: var(--app-danger); }
+    .saved-pill {
+      font-size: 11px;
+      color: var(--app-muted);
+      min-width: 64px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(360px, 460px) 1fr;
+      gap: 0;
+      height: calc(100vh - 53px);
+    }
+
+    /* ----- Form pane ----- */
+    .form-pane {
+      overflow-y: auto;
+      padding: 18px 18px 80px;
+      border-right: 1px solid var(--app-border);
+      background: var(--app-bg);
+    }
+    .group {
+      background: var(--app-panel);
+      border: 1px solid var(--app-border);
+      border-radius: 12px;
+      padding: 14px 14px 16px;
+      margin-bottom: 16px;
+    }
+    .group > h3 {
+      margin: 0 0 12px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--app-accent);
+    }
+    .field { margin-bottom: 11px; }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--app-muted);
+      margin-bottom: 4px;
+    }
+    .field input[type="text"],
+    .field textarea {
+      width: 100%;
+      font: inherit;
+      font-size: 13px;
+      color: var(--app-text);
+      background: var(--app-panel-2);
+      border: 1px solid var(--app-border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      resize: vertical;
+    }
+    .field input:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--app-accent);
+    }
+    .field textarea { min-height: 60px; line-height: 1.45; }
+
+    .item {
+      background: var(--app-panel-2);
+      border: 1px solid var(--app-border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .item-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .item-head .item-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--app-muted);
+      margin-right: auto;
+    }
+    .icon-btn {
+      font: inherit;
+      font-size: 12px;
+      line-height: 1;
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--app-muted);
+      background: var(--app-panel);
+      border: 1px solid var(--app-border);
+      border-radius: 7px;
+      cursor: pointer;
+    }
+    .icon-btn:hover { color: var(--app-text); border-color: var(--app-accent); }
+    .icon-btn.del:hover { color: var(--app-danger); border-color: var(--app-danger); }
+    .icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .add-btn {
+      width: 100%;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--app-accent);
+      background: transparent;
+      border: 1px dashed var(--app-border);
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .add-btn:hover { border-color: var(--app-accent); background: rgba(45, 212, 191, 0.06); }
+
+    .bullets { margin-top: 8px; }
+    .bullet-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .bullet-row textarea {
+      flex: 1;
+      min-height: 44px;
+    }
+    .bullet-row .bullet-ctrls {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .hint {
+      font-size: 10.5px;
+      color: var(--app-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .hint code {
+      background: var(--app-panel-2);
+      padding: 1px 4px;
+      border-radius: 4px;
+      color: var(--app-accent);
+    }
+
+    /* ----- Preview pane ----- */
+    .preview-pane {
+      overflow-y: auto;
+      padding: 28px;
+      background: #555a66;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .page {
+      background: #fff;
+      width: 210mm;
+      min-height: 297mm;
+      padding: 11mm 12mm;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ============================================================
+       RESUME PREVIEW STYLES (mirror of resume.html print CSS)
+       Scoped under .resume so app chrome is unaffected.
+       ============================================================ */
+    .resume {
+      font-family: "Calibri", "Segoe UI", Arial, system-ui, sans-serif;
+      color: #1a1a1a;
+      font-size: 9.6pt;
+      line-height: 1.26;
+      --ink: #1a1a1a;
+      --muted: #444;
+      --light: #666;
+      --accent: #0d7d74;
+      --rule: #cdd5d3;
+    }
+    .resume * { box-sizing: border-box; margin: 0; padding: 0; }
+    .resume .name {
+      font-size: 19pt;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--ink);
+    }
+    .resume .title {
+      font-size: 9.8pt;
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .resume .contact {
+      margin-top: 4px;
+      font-size: 8.8pt;
+      color: var(--muted);
+    }
+    .resume .contact a { color: var(--muted); text-decoration: none; }
+    .resume .contact span { white-space: nowrap; }
+    .resume .sep { color: var(--rule); margin: 0 6px; }
+    .resume section { margin-top: 9px; }
+    .resume h2 {
+      font-size: 9.8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.1px;
+      color: var(--accent);
+      border-bottom: 1.4px solid var(--rule);
+      padding-bottom: 2px;
+      margin-bottom: 5px;
+    }
+    .resume p.summary { text-align: justify; color: var(--muted); }
+    .resume .skills .row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+    .resume .skills .k {
+      flex: 0 0 150px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .resume .skills .v { flex: 1; color: var(--muted); }
+    .resume .job-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .resume .job-title { font-weight: 700; color: var(--ink); font-size: 10pt; }
+    .resume .job-date { color: var(--light); font-size: 9.2pt; white-space: nowrap; }
+    .resume .job-org { color: var(--accent); font-weight: 600; font-size: 9.4pt; margin-bottom: 3px; }
+    .resume ul { list-style: none; margin: 3px 0 0; }
+    .resume li {
+      position: relative;
+      padding-left: 13px;
+      margin-bottom: 2px;
+      color: var(--muted);
+      text-align: justify;
+    }
+    .resume li::before {
+      content: "\25AA";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 8pt;
+      top: 1px;
+    }
+    .resume li strong { color: var(--ink); font-weight: 600; }
+    .resume .proj { margin-bottom: 4px; color: var(--muted); }
+    .resume .proj b { color: var(--ink); }
+    .resume .edu-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 2px;
+    }
+    .resume .edu-deg { color: var(--ink); }
+    .resume .edu-deg b { font-weight: 600; }
+    .resume .edu-date { color: var(--light); font-size: 9.2pt; white-space: nowrap; }
+
+    /* ============================================================
+       PRINT — only the resume, at A4, app chrome hidden
+       ============================================================ */
+    @page { size: A4; margin: 11mm 12mm; }
+    @media print {
+      html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .toolbar, .form-pane, .preview-pane { display: block; }
+      .toolbar, .form-pane { display: none !important; }
+      .layout { display: block; height: auto; }
+      .preview-pane {
+        overflow: visible;
+        padding: 0;
+        background: #fff;
+        display: block;
+      }
+      .page {
+        width: auto;
+        min-height: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+      .resume section { page-break-inside: avoid; }
+      .resume li, .resume .job-head { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="brand"><span>Resume Builder</span></div>
+    <span class="saved-pill" id="savedPill"></span>
+    <button class="btn" id="btnImport">Import JSON</button>
+    <button class="btn" id="btnExport">Export JSON</button>
+    <button class="btn danger" id="btnReset">Reset</button>
+    <button class="btn primary" id="btnPrint">Print / Save PDF</button>
+    <input type="file" id="fileInput" accept="application/json,.json" hidden />
+  </div>
+
+  <div class="layout">
+    <div class="form-pane" id="formPane"></div>
+    <div class="preview-pane">
+      <div class="page">
+        <div class="resume" id="resume"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  "use strict";
+
+  /* ============================================================
+     DEFAULT DATA (seeded verbatim from resume.html)
+     ============================================================ */
+  const DEFAULT_DATA = {
+    name: "VIKAS YADAV",
+    title: "Senior SRE / DevOps Engineer · Platform & Infrastructure · AWS · Terraform · Observability · MLOps",
+    contacts: [
+      { text: "vikaskashi896@gmail.com", href: "mailto:vikaskashi896@gmail.com", break: false },
+      { text: "+91 72485 56138 (WhatsApp)", href: "", break: false },
+      { text: "Hyderabad, India", href: "", break: true },
+      { text: "linkedin.com/in/vikas-yadav896", href: "https://linkedin.com/in/vikas-yadav896", break: false },
+      { text: "github.com/iamyadavvikas", href: "https://github.com/iamyadavvikas", break: false },
+      { text: "Open to Bangalore / Pune / Hyderabad / Noida / Remote-India", href: "", break: false },
+      { text: "Immediate joiner", href: "", break: false }
+    ],
+    summary: "Platform & Infrastructure SRE / DevOps engineer with 4 years at Shutterfly Inc. (consulting via Genpact), working on the Photos & Media platform. I own the Terraform code for our AWS setup across multiple accounts and four environments (dev, beta, stage, prod), with 100+ pull requests merged after peer review. Day to day I work with AWS (ECS, EC2/ASG, S3, IAM, ELB/ALB, VPC, SSM, Route53), Terraform, Packer for golden AMIs, and Jenkins Job DSL. I built and run our Splunk logging platform (license master plus heavy forwarders) from scratch. I also handle ECS capacity, IAM least-privilege cleanups, network security hardening, infrastructure decommissioning, and a 24×7 on-call rotation. I run the infrastructure that sits under our media and AI services — the image pipeline, the recommendation engine, and AI config — rather than training the models myself. MLOps and LLM-serving infrastructure (vLLM, KServe, MLflow) are an active learning track for me right now.",
+    skills: [
+      { k: "Infrastructure as Code", v: "Terraform (advanced — multi-account, multi-environment, modules, plan/apply via PR), Packer (golden AMIs / immutable infrastructure), CloudFormation" },
+      { k: "Cloud & Linux", v: "AWS (ECS, EC2 / Auto Scaling Groups & Launch Templates, S3, Lambda, SQS, IAM, ELB / ALB, VPC / Security Groups, SSM, Route53), Linux (RHEL, Ubuntu), Shell scripting" },
+      { k: "CI/CD & Automation", v: "Jenkins (Job DSL, Pipeline DSL, Groovy), GitHub Actions, Git / GitHub Enterprise, infrastructure & jobs as code, deployment automation, environment provisioning, decommissioning automation" },
+      { k: "Containers & Orchestration", v: "Docker, Amazon ECS (capacity & service scaling), Kubernetes / EKS, Helm, ArgoCD" },
+      { k: "Observability & SRE", v: "Splunk (built & operate the logging platform), SignalFX, VividCortex, CloudWatch, Prometheus, Grafana, OpenTelemetry, PagerDuty, RUM / synthetics / APM, SLOs / SLIs, incident response, RCAs, fast revert-based rollback" },
+      { k: "Security", v: "IAM design & least-privilege cleanup, internal-only ELB lockdown, security groups / network segmentation, CVE / vulnerability exception management, bastion / jumphost access" },
+      { k: "Config Management", v: "Ansible" },
+      { k: "Programming & Scripting", v: "Python (advanced), Bash, Groovy, SQL, REST APIs" },
+      { k: "Actively learning", v: "vLLM, KServe, Triton, MLflow" }
+    ],
+    experience: [
+      {
+        title: "Site Reliability & DevOps Engineer (Platform & Infrastructure)",
+        date: "08/2022 – Present",
+        org: "Shutterfly Inc. (via Genpact), Hyderabad — Photos & Media Platform",
+        bullets: [
+          "Own the Terraform code for the Photos platform across multiple AWS accounts and four environments (dev, beta, stage, prod). **100+ merged pull requests**, separate state per environment, shared modules, and a PR + terraform plan review before anything goes to production.",
+          "Built our **Splunk logging platform from scratch** — license master and heavy forwarders — using Terraform Launch Templates, Auto Scaling Groups, and AMIs. A self-healing, code-managed logging layer the whole team uses for troubleshooting.",
+          "Maintain a **Packer golden-AMI pipeline** for the Splunk and application fleet. Immutable, hardened images mean no configuration drift — every instance boots the same way and rebuilds cleanly.",
+          "Automate infrastructure lifecycle in **Jenkins Job DSL** (Groovy), including S3 and SSM teardown as code with scoped least-privilege permissions. Upgraded the Terraform runner image (0.12 → 0.13) without breaking the pipeline.",
+          "Manage **ECS capacity and scaling** for the platform. Raised the production cluster's max task count to 150 after checking the underlying capacity, giving autoscaling more room under load.",
+          "Led **network security and IAM hardening**: locked down the internal geocoding (Nominatim / OSM) ELB to internal-only traffic across all four environments, cleaned up Lambda IAM roles, and managed CVE / vulnerability exceptions in the scanner.",
+          "Drive **cloud cost optimisation** across the Photos & Media estate: decommissioning stale ASGs, Launch Templates, and dead resources; Jenkins Job DSL teardown automation for S3 and SSM; and the media image-recompression pipeline (raw → recompressed in S3). All shipped as reviewed, reversible PRs.",
+          "Consolidated the EC2 fleet onto **Launch Templates**: built new Auto Scaling Groups and removed legacy Launch Configurations in Terraform. No downtime, rolled out one environment at a time.",
+          "Run **observability and on-call**: own VividCortex database monitoring for the RDS fleet (slow-query and query-plan analysis), and work with SignalFX, RUM, synthetics, and APM across the photo-upload and CreateMedia paths. 24×7 on-call rotation.",
+          "Handled several **high-severity production incidents** as primary on-call: a media-cloud traffic surge of 4.4M+ calls that overloaded the user-service Redis cluster; a 45-minute Sev-1 outage from a Terraform / Akamai misconfiguration (fixed with a revert PR); and a 1-hour platform-wide upload failure triggered by a third-party ingestion API.",
+          "Cut **on-call alert fatigue by ~25%** across the Photos, Media, and Upload dashboard groups via a domain-wide SignalFX cleanup — retired 147 old detectors and 617 stale charts.",
+          "Lead **RCAs and post-incident follow-ups** for critical failures — drove long-term fixes like enforcing timeouts on social-media ingestion calls and fixing autoscaling instability surfaced in load tests.",
+          "Support the media and AI platform at the infrastructure layer: own the S3 bucket policy for the media-image-recompressor, the ECS capacity AI services scale on, and AI config via SSM parameters. MLOps as the reliability layer, not model training."
+        ]
+      }
+    ],
+    projects: [
+      { title: "Splunk Logging Platform (built from scratch):", body: "Set up the license master and heavy forwarders entirely in Terraform (Launch Templates, ASGs, AMIs). A self-healing, code-managed logging layer the Photos & Media team uses every day." },
+      { title: "Cloud Cost Optimisation:", body: "Decommissioning stale ASGs, Launch Templates, and dead resources; Jenkins Job DSL teardown-as-code for S3 and SSM; and the media image-recompression pipeline (raw → recompressed in S3) for ongoing storage savings. All shipped as reviewed, reversible PRs." },
+      { title: "Observability & Incident Response:", body: "Built and run Splunk. Own VividCortex database monitoring (slow-query and query-plan analysis on RDS). Use SignalFX, RUM, APM, and synthetics across the photo-upload and CreateMedia KPIs. Fast revert PRs are the main rollback during incidents." }
+    ],
+    education: [
+      { degree: "**Master of Technology (M.Tech)** — Indian Institute of Technology Kharagpur (IIT Kharagpur)", date: "2020 – 2022" },
+      { degree: "**Bachelor of Technology (B.Tech)** — University of Petroleum and Energy Studies (UPES), Dehradun, India", date: "2015 – 2019" }
+    ]
+  };
+
+  const STORAGE_KEY = "resumeData";
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  let data = load();
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return migrate(JSON.parse(raw));
+    } catch (e) { /* ignore corrupt storage */ }
+    return clone(DEFAULT_DATA);
+  }
+
+  function migrate(d) {
+    // Ensure all top-level keys exist so older saves don't break the UI.
+    const base = clone(DEFAULT_DATA);
+    return Object.assign(base, d);
+  }
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  let saveTimer = null;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        flashSaved();
+      } catch (e) { /* storage full / disabled */ }
+    }, 250);
+  }
+
+  function flashSaved() {
+    const pill = document.getElementById("savedPill");
+    const t = new Date();
+    pill.textContent = "Saved " + t.toLocaleTimeString();
+  }
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // **bold** -> <strong>, after escaping. No other HTML allowed (XSS-safe).
+  function fmt(s) {
+    return escapeHtml(s).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  }
+
+  function el(tag, attrs, children) {
+    const node = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      if (k === "class") node.className = attrs[k];
+      else if (k === "html") node.innerHTML = attrs[k];
+      else if (k === "text") node.textContent = attrs[k];
+      else if (k.startsWith("on") && typeof attrs[k] === "function") node.addEventListener(k.slice(2), attrs[k]);
+      else if (attrs[k] === true) node.setAttribute(k, "");
+      else if (attrs[k] !== false && attrs[k] != null) node.setAttribute(k, attrs[k]);
+    }
+    if (children) (Array.isArray(children) ? children : [children]).forEach(c => {
+      if (c == null) return;
+      node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+    return node;
+  }
+
+  /* ============================================================
+     PREVIEW RENDER
+     ============================================================ */
+  function renderPreview() {
+    const r = document.getElementById("resume");
+    const parts = [];
+
+    // Header
+    let contactHtml = "";
+    data.contacts.forEach((c, i) => {
+      const inner = c.href
+        ? '<a href="' + escapeHtml(c.href) + '">' + escapeHtml(c.text) + "</a>"
+        : escapeHtml(c.text);
+      contactHtml += "<span>" + inner + "</span>";
+      const isLast = i === data.contacts.length - 1;
+      if (c.break) contactHtml += "<br />";
+      else if (!isLast) contactHtml += '<span class="sep">·</span>';
+    });
+
+    parts.push(
+      '<header>' +
+        '<div class="name">' + escapeHtml(data.name) + "</div>" +
+        '<div class="title">' + escapeHtml(data.title) + "</div>" +
+        '<div class="contact">' + contactHtml + "</div>" +
+      "</header>"
+    );
+
+    // Summary
+    parts.push(
+      "<section><h2>Summary</h2>" +
+      '<p class="summary">' + fmt(data.summary) + "</p></section>"
+    );
+
+    // Skills
+    let skillsHtml = '<section><h2>Skills</h2><div class="skills">';
+    data.skills.forEach(s => {
+      skillsHtml += '<div class="row"><div class="k">' + fmt(s.k) +
+        '</div><div class="v">' + fmt(s.v) + "</div></div>";
+    });
+    skillsHtml += "</div></section>";
+    parts.push(skillsHtml);
+
+    // Experience
+    let expHtml = "<section><h2>Experience</h2>";
+    data.experience.forEach(job => {
+      expHtml +=
+        '<div class="job-head"><div class="job-title">' + fmt(job.title) +
+        '</div><div class="job-date">' + escapeHtml(job.date) + "</div></div>" +
+        '<div class="job-org">' + fmt(job.org) + "</div><ul>";
+      job.bullets.forEach(b => { expHtml += "<li>" + fmt(b) + "</li>"; });
+      expHtml += "</ul>";
+    });
+    expHtml += "</section>";
+    parts.push(expHtml);
+
+    // Projects
+    let projHtml = "<section><h2>Key Projects</h2>";
+    data.projects.forEach(p => {
+      projHtml += '<div class="proj"><b>' + fmt(p.title) + "</b> " + fmt(p.body) + "</div>";
+    });
+    projHtml += "</section>";
+    parts.push(projHtml);
+
+    // Education
+    let eduHtml = "<section><h2>Education</h2>";
+    data.education.forEach(e => {
+      eduHtml += '<div class="edu-row"><div class="edu-deg">' + fmt(e.degree) +
+        '</div><div class="edu-date">' + escapeHtml(e.date) + "</div></div>";
+    });
+    eduHtml += "</section>";
+    parts.push(eduHtml);
+
+    r.innerHTML = parts.join("");
+  }
+
+  /* ============================================================
+     FORM BUILDERS
+     ============================================================ */
+  function update(path, value) {
+    // path is array, e.g. ["experience", 0, "bullets", 2]
+    let o = data;
+    for (let i = 0; i < path.length - 1; i++) o = o[path[i]];
+    o[path[path.length - 1]] = value;
+    save();
+    renderPreview();
+  }
+
+  function move(arr, from, to) {
+    if (to < 0 || to >= arr.length) return;
+    const [x] = arr.splice(from, 1);
+    arr.splice(to, 0, x);
+  }
+
+  function textField(label, value, oninput, multiline) {
+    const input = multiline
+      ? el("textarea", { rows: 3 })
+      : el("input", { type: "text" });
+    input.value = value || "";
+    input.addEventListener("input", () => oninput(input.value));
+    return el("div", { class: "field" }, [el("label", { text: label }), input]);
+  }
+
+  function ctrlBtns(idx, len, onUp, onDown, onDel) {
+    return [
+      el("button", { class: "icon-btn", title: "Move up", disabled: idx === 0, onclick: onUp, html: "&#9650;" }),
+      el("button", { class: "icon-btn", title: "Move down", disabled: idx === len - 1, onclick: onDown, html: "&#9660;" }),
+      el("button", { class: "icon-btn del", title: "Remove", onclick: onDel, html: "&times;" })
+    ];
+  }
+
+  function renderForm() {
+    const pane = document.getElementById("formPane");
+    pane.innerHTML = "";
+
+    /* ---- Header group ---- */
+    const headerGroup = el("div", { class: "group" }, [el("h3", { text: "Header" })]);
+    headerGroup.appendChild(textField("Full name", data.name, v => update(["name"], v)));
+    headerGroup.appendChild(textField("Title / headline", data.title, v => update(["title"], v), true));
+
+    const contactsWrap = el("div");
+    contactsWrap.appendChild(el("label", { class: "", text: "Contact items", style: "display:block;font-size:11px;font-weight:600;color:var(--app-muted);margin:6px 0 6px;" }));
+    data.contacts.forEach((c, i) => {
+      const item = el("div", { class: "item" });
+      const head = el("div", { class: "item-head" }, [
+        el("span", { class: "item-title", text: "Item " + (i + 1) }),
+        ...ctrlBtns(i, data.contacts.length,
+          () => { move(data.contacts, i, i - 1); save(); renderForm(); renderPreview(); },
+          () => { move(data.contacts, i, i + 1); save(); renderForm(); renderPreview(); },
+          () => { data.contacts.splice(i, 1); save(); renderForm(); renderPreview(); })
+      ]);
+      item.appendChild(head);
+      item.appendChild(textField("Text", c.text, v => update(["contacts", i, "text"], v)));
+      item.appendChild(textField("Link (optional)", c.href, v => update(["contacts", i, "href"], v)));
+      // line-break toggle
+      const cb = el("input", { type: "checkbox" });
+      cb.checked = !!c.break;
+      cb.addEventListener("change", () => update(["contacts", i, "break"], cb.checked));
+      const cbLabel = el("label", { style: "display:flex;align-items:center;gap:6px;font-size:11px;color:var(--app-muted);cursor:pointer;" }, [cb, "Line break after this item"]);
+      item.appendChild(el("div", { class: "field" }, [cbLabel]));
+      contactsWrap.appendChild(item);
+    });
+    contactsWrap.appendChild(el("button", {
+      class: "add-btn", text: "+ Add contact item",
+      onclick: () => { data.contacts.push({ text: "", href: "", break: false }); save(); renderForm(); renderPreview(); }
+    }));
+    headerGroup.appendChild(contactsWrap);
+    pane.appendChild(headerGroup);
+
+    /* ---- Bold hint ---- */
+    pane.appendChild(el("div", { class: "group" }, [
+      el("h3", { text: "Formatting" }),
+      el("div", { class: "hint", html: "Wrap text in <code>**double asterisks**</code> to make it <strong>bold</strong> in the resume. Works in the summary, skill values, experience bullets, project titles/body, and education." })
+    ]));
+
+    /* ---- Summary ---- */
+    const sumGroup = el("div", { class: "group" }, [el("h3", { text: "Summary" })]);
+    sumGroup.appendChild(textField("Summary paragraph", data.summary, v => update(["summary"], v), true));
+    pane.appendChild(sumGroup);
+
+    /* ---- Skills ---- */
+    const skillsGroup = el("div", { class: "group" }, [el("h3", { text: "Skills" })]);
+    data.skills.forEach((s, i) => {
+      const item = el("div", { class: "item" });
+      item.appendChild(el("div", { class: "item-head" }, [
+        el("span", { class: "item-title", text: s.k || "Skill row " + (i + 1) }),
+        ...ctrlBtns(i, data.skills.length,
+          () => { move(data.skills, i, i - 1); save(); renderForm(); renderPreview(); },
+          () => { move(data.skills, i, i + 1); save(); renderForm(); renderPreview(); },
+          () => { data.skills.splice(i, 1); save(); renderForm(); renderPreview(); })
+      ]));
+      item.appendChild(textField("Category", s.k, v => update(["skills", i, "k"], v)));
+      item.appendChild(textField("Skills (value)", s.v, v => update(["skills", i, "v"], v), true));
+      skillsGroup.appendChild(item);
+    });
+    skillsGroup.appendChild(el("button", {
+      class: "add-btn", text: "+ Add skill row",
+      onclick: () => { data.skills.push({ k: "", v: "" }); save(); renderForm(); renderPreview(); }
+    }));
+    pane.appendChild(skillsGroup);
+
+    /* ---- Experience ---- */
+    const expGroup = el("div", { class: "group" }, [el("h3", { text: "Experience" })]);
+    data.experience.forEach((job, i) => {
+      const item = el("div", { class: "item" });
+      item.appendChild(el("div", { class: "item-head" }, [
+        el("span", { class: "item-title", text: "Role " + (i + 1) }),
+        ...ctrlBtns(i, data.experience.length,
+          () => { move(data.experience, i, i - 1); save(); renderForm(); renderPreview(); },
+          () => { move(data.experience, i, i + 1); save(); renderForm(); renderPreview(); },
+          () => { data.experience.splice(i, 1); save(); renderForm(); renderPreview(); })
+      ]));
+      item.appendChild(textField("Job title", job.title, v => update(["experience", i, "title"], v)));
+      item.appendChild(textField("Dates", job.date, v => update(["experience", i, "date"], v)));
+      item.appendChild(textField("Organisation / line", job.org, v => update(["experience", i, "org"], v)));
+
+      // bullets
+      const bWrap = el("div", { class: "bullets" });
+      bWrap.appendChild(el("label", { style: "display:block;font-size:11px;font-weight:600;color:var(--app-muted);margin-bottom:4px;", text: "Bullets" }));
+      job.bullets.forEach((b, j) => {
+        const ta = el("textarea", { rows: 2 });
+        ta.value = b;
+        ta.addEventListener("input", () => update(["experience", i, "bullets", j], ta.value));
+        const ctrls = el("div", { class: "bullet-ctrls" }, ctrlBtns(j, job.bullets.length,
+          () => { move(job.bullets, j, j - 1); save(); renderForm(); renderPreview(); },
+          () => { move(job.bullets, j, j + 1); save(); renderForm(); renderPreview(); },
+          () => { job.bullets.splice(j, 1); save(); renderForm(); renderPreview(); }));
+        bWrap.appendChild(el("div", { class: "bullet-row" }, [ta, ctrls]));
+      });
+      bWrap.appendChild(el("button", {
+        class: "add-btn", text: "+ Add bullet",
+        onclick: () => { job.bullets.push(""); save(); renderForm(); renderPreview(); }
+      }));
+      item.appendChild(bWrap);
+      expGroup.appendChild(item);
+    });
+    expGroup.appendChild(el("button", {
+      class: "add-btn", text: "+ Add role",
+      onclick: () => { data.experience.push({ title: "", date: "", org: "", bullets: [""] }); save(); renderForm(); renderPreview(); }
+    }));
+    pane.appendChild(expGroup);
+
+    /* ---- Projects ---- */
+    const projGroup = el("div", { class: "group" }, [el("h3", { text: "Key Projects" })]);
+    data.projects.forEach((p, i) => {
+      const item = el("div", { class: "item" });
+      item.appendChild(el("div", { class: "item-head" }, [
+        el("span", { class: "item-title", text: "Project " + (i + 1) }),
+        ...ctrlBtns(i, data.projects.length,
+          () => { move(data.projects, i, i - 1); save(); renderForm(); renderPreview(); },
+          () => { move(data.projects, i, i + 1); save(); renderForm(); renderPreview(); },
+          () => { data.projects.splice(i, 1); save(); renderForm(); renderPreview(); })
+      ]));
+      item.appendChild(textField("Title (bold)", p.title, v => update(["projects", i, "title"], v)));
+      item.appendChild(textField("Body", p.body, v => update(["projects", i, "body"], v), true));
+      projGroup.appendChild(item);
+    });
+    projGroup.appendChild(el("button", {
+      class: "add-btn", text: "+ Add project",
+      onclick: () => { data.projects.push({ title: "", body: "" }); save(); renderForm(); renderPreview(); }
+    }));
+    pane.appendChild(projGroup);
+
+    /* ---- Education ---- */
+    const eduGroup = el("div", { class: "group" }, [el("h3", { text: "Education" })]);
+    data.education.forEach((e, i) => {
+      const item = el("div", { class: "item" });
+      item.appendChild(el("div", { class: "item-head" }, [
+        el("span", { class: "item-title", text: "Entry " + (i + 1) }),
+        ...ctrlBtns(i, data.education.length,
+          () => { move(data.education, i, i - 1); save(); renderForm(); renderPreview(); },
+          () => { move(data.education, i, i + 1); save(); renderForm(); renderPreview(); },
+          () => { data.education.splice(i, 1); save(); renderForm(); renderPreview(); })
+      ]));
+      item.appendChild(textField("Degree / institution", e.degree, v => update(["education", i, "degree"], v), true));
+      item.appendChild(textField("Dates", e.date, v => update(["education", i, "date"], v)));
+      eduGroup.appendChild(item);
+    });
+    eduGroup.appendChild(el("button", {
+      class: "add-btn", text: "+ Add education entry",
+      onclick: () => { data.education.push({ degree: "", date: "" }); save(); renderForm(); renderPreview(); }
+    }));
+    pane.appendChild(eduGroup);
+  }
+
+  /* ============================================================
+     TOOLBAR ACTIONS
+     ============================================================ */
+  document.getElementById("btnExport").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = el("a", { href: url, download: "resume-data.json" });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("btnImport").addEventListener("click", () => {
+    document.getElementById("fileInput").click();
+  });
+  document.getElementById("fileInput").addEventListener("change", (ev) => {
+    const file = ev.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (!parsed || typeof parsed !== "object") throw new Error("not an object");
+        data = migrate(parsed);
+        save();
+        renderForm();
+        renderPreview();
+      } catch (e) {
+        alert("Could not import: the file is not valid resume JSON.");
+      }
+      ev.target.value = "";
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("btnReset").addEventListener("click", () => {
+    if (confirm("Reset to the default resume? This clears your saved edits in this browser.")) {
+      data = clone(DEFAULT_DATA);
+      save();
+      renderForm();
+      renderPreview();
+    }
+  });
+
+  document.getElementById("btnPrint").addEventListener("click", () => window.print());
+
+  /* ============================================================
+     INIT
+     ============================================================ */
+  renderForm();
+  renderPreview();
+  </script>
+</body>
+</html>
