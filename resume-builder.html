@@ -373,7 +373,7 @@
       background: #fff;
       width: 210mm;
       min-height: 297mm;
-      padding: 11mm 12mm;
+      padding: 9mm 11mm;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
       position: relative;
     }
@@ -409,102 +409,60 @@
        Scoped under .resume so app chrome is unaffected.
        ============================================================ */
     .resume {
-      font-family: "Calibri", "Segoe UI", Arial, system-ui, sans-serif;
-      color: #1a1a1a;
-      font-size: 9.6pt;
-      line-height: 1.26;
-      --ink: #1a1a1a;
-      --muted: #444;
-      --light: #666;
-      --accent: #0d7d74;
-      --rule: #cdd5d3;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #000;
+      font-size: 11px;
+      line-height: 1.25;
     }
     .resume * { box-sizing: border-box; margin: 0; padding: 0; }
+    .resume header { text-align: center; margin-bottom: 6px; }
     .resume .name {
-      font-size: 19pt;
+      font-size: 22px;
       font-weight: 700;
-      letter-spacing: 0.5px;
-      color: var(--ink);
+      margin-bottom: 2px;
+      color: #000;
     }
     .resume .title {
-      font-size: 9.8pt;
-      color: var(--accent);
+      font-size: 12px;
       font-weight: 600;
-      margin-top: 2px;
+      color: #333;
+      letter-spacing: 0.3px;
+      margin-bottom: 4px;
     }
     .resume .contact {
-      margin-top: 4px;
-      font-size: 8.8pt;
-      color: var(--muted);
+      font-size: 11px;
+      color: #000;
+      line-height: 1.4;
     }
-    .resume .contact a { color: var(--muted); text-decoration: none; }
+    .resume .contact a { color: #000; text-decoration: none; }
     .resume .contact span { white-space: nowrap; }
-    .resume .sep { color: var(--rule); margin: 0 6px; }
-    .resume section { margin-top: 9px; }
+    .resume .sep { color: #000; margin: 0 4px; }
+    .resume section { margin-top: 7px; }
     .resume h2 {
-      font-size: 9.8pt;
+      font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1.1px;
-      color: var(--accent);
-      border-bottom: 1.4px solid var(--rule);
-      padding-bottom: 2px;
-      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+      color: #000;
+      border-bottom: 1.5px solid #000;
+      padding-bottom: 1px;
+      margin-bottom: 3px;
     }
-    .resume p.summary { text-align: justify; color: var(--muted); }
-    .resume .skills .row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 2px;
-    }
-    .resume .skills .k {
-      flex: 0 0 150px;
-      font-weight: 600;
-      color: var(--ink);
-    }
-    .resume .skills .v { flex: 1; color: var(--muted); }
-    .resume .job-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-    }
-    .resume .job-title { font-weight: 700; color: var(--ink); font-size: 10pt; }
-    .resume .job-date { color: var(--light); font-size: 9.2pt; white-space: nowrap; }
-    .resume .job-org { color: var(--accent); font-weight: 600; font-size: 9.4pt; margin-bottom: 3px; }
-    .resume ul { list-style: none; margin: 3px 0 0; }
-    .resume li {
-      position: relative;
-      padding-left: 13px;
-      margin-bottom: 2px;
-      color: var(--muted);
-      text-align: justify;
-    }
-    .resume li::before {
-      content: "\25AA";
-      position: absolute;
-      left: 0;
-      color: var(--accent);
-      font-size: 8pt;
-      top: 1px;
-    }
-    .resume li strong { color: var(--ink); font-weight: 600; }
-    .resume .proj { margin-bottom: 4px; color: var(--muted); }
-    .resume .proj b { color: var(--ink); }
-    .resume .edu-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 2px;
-    }
-    .resume .edu-deg { color: var(--ink); }
-    .resume .edu-deg b { font-weight: 600; }
-    .resume .edu-date { color: var(--light); font-size: 9.2pt; white-space: nowrap; }
+    .resume p.summary { font-size: 11px; color: #000; margin-bottom: 3px; text-align: left; }
+    .resume .skills p { font-size: 10.5px; color: #000; margin-bottom: 2px; }
+    .resume .skills strong { font-weight: 700; color: #000; }
+    .resume .job-title-line { font-size: 11px; font-weight: 700; color: #000; margin-bottom: 1px; }
+    .resume .job-company-line { font-size: 10.5px; font-style: italic; color: #000; margin-bottom: 3px; }
+    .resume ul { list-style: disc; margin: 0 0 3px; padding-left: 16px; }
+    .resume li { font-size: 10.5px; margin-bottom: 2px; color: #000; }
+    .resume li strong { color: #000; font-weight: 700; }
+    .resume .edu-line { font-size: 11px; color: #000; margin-bottom: 3px; }
+    .resume .edu-line strong { font-weight: 700; }
 
     /* ============================================================
        PRINT — only the resume, at A4, app chrome hidden
        ============================================================ */
-    @page { size: A4; margin: 11mm 12mm; }
+    @page { size: A4; margin: 7mm 9mm; }
     @media print {
       html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .toolbar, .form-pane, .preview-pane { display: block; }
@@ -571,7 +529,7 @@
       { text: "Open to Bangalore / Pune / Hyderabad / Noida / Remote-India", href: "", break: false },
       { text: "Immediate joiner", href: "", break: false }
     ],
-    summary: "Platform & Infrastructure SRE / DevOps engineer with 4 years at Shutterfly Inc. (consulting via Genpact), working on the Photos & Media platform. I own the Terraform code for our AWS setup across multiple accounts and four environments (dev, beta, stage, prod), with 100+ pull requests merged after peer review. Day to day I work with AWS (ECS, EC2/ASG, S3, IAM, ELB/ALB, VPC, SSM, Route53), Terraform, Packer for golden AMIs, and Jenkins Job DSL. I built and run our Splunk logging platform (license master plus heavy forwarders) from scratch. I also handle ECS capacity, IAM least-privilege cleanups, network security hardening, infrastructure decommissioning, and a 24×7 on-call rotation. I run the infrastructure that sits under our media and AI services — the image pipeline, the recommendation engine, and AI config — rather than training the models myself. MLOps and LLM-serving infrastructure (vLLM, KServe, MLflow) are an active learning track for me right now.",
+    summary: "Platform & Infrastructure SRE / DevOps engineer with 4 years at Shutterfly Inc. (consulting via Genpact), working on the Photos & Media platform. I own the Terraform code for our AWS setup across multiple accounts and four environments (dev, beta, stage, prod), with 100+ pull requests merged after peer review.\n\nDay to day I work with AWS (ECS, EC2/ASG, S3, IAM, ELB/ALB, VPC, SSM, Route53), Terraform, Packer for golden AMIs, and Jenkins Job DSL. I built and run our Splunk logging platform (license master plus heavy forwarders) from scratch. I also handle ECS capacity, IAM least-privilege cleanups, network security hardening, infrastructure decommissioning, and a 24×7 on-call rotation.\n\nI run the infrastructure that sits under our media and AI services — the image pipeline, the recommendation engine, and AI config — rather than training the models myself. MLOps and LLM-serving infrastructure (vLLM, KServe, MLflow) are an active learning track for me right now.",
     skills: [
       { k: "Infrastructure as Code", v: "Terraform (advanced — multi-account, multi-environment, modules, plan/apply via PR), Packer (golden AMIs / immutable infrastructure), CloudFormation" },
       { k: "Cloud & Linux", v: "AWS (ECS, EC2 / Auto Scaling Groups & Launch Templates, S3, Lambda, SQS, IAM, ELB / ALB, VPC / Security Groups, SSM, Route53), Linux (RHEL, Ubuntu), Shell scripting" },
@@ -719,17 +677,20 @@
       "</header>"
     );
 
-    // Summary
-    parts.push(
-      "<section><h2>Summary</h2>" +
-      '<p class="summary">' + fmt(data.summary) + "</p></section>"
-    );
+    // Summary (blank lines split into separate paragraphs)
+    let sumHtml = "<section><h2>Summary</h2>";
+    String(data.summary).split(/\n\s*\n/).forEach(para => {
+      const t = para.trim();
+      if (t) sumHtml += '<p class="summary">' + fmt(t) + "</p>";
+    });
+    sumHtml += "</section>";
+    parts.push(sumHtml);
 
     // Skills
     let skillsHtml = '<section><h2>Skills</h2><div class="skills">';
     data.skills.forEach(s => {
-      skillsHtml += '<div class="row"><div class="k">' + fmt(s.k) +
-        '</div><div class="v">' + fmt(s.v) + "</div></div>";
+      const k = String(s.k || "").trim().replace(/:$/, "");
+      skillsHtml += "<p><strong>" + fmt(k) + ":</strong> " + fmt(s.v) + "</p>";
     });
     skillsHtml += "</div></section>";
     parts.push(skillsHtml);
@@ -737,10 +698,10 @@
     // Experience
     let expHtml = "<section><h2>Experience</h2>";
     data.experience.forEach(job => {
+      const dateStr = job.date ? " | " + escapeHtml(job.date) : "";
       expHtml +=
-        '<div class="job-head"><div class="job-title">' + fmt(job.title) +
-        '</div><div class="job-date">' + escapeHtml(job.date) + "</div></div>" +
-        '<div class="job-org">' + fmt(job.org) + "</div><ul>";
+        '<p class="job-title-line">' + fmt(job.title) + dateStr + "</p>" +
+        '<p class="job-company-line">' + fmt(job.org) + "</p><ul>";
       job.bullets.forEach(b => { expHtml += "<li>" + fmt(b) + "</li>"; });
       expHtml += "</ul>";
     });
@@ -748,18 +709,18 @@
     parts.push(expHtml);
 
     // Projects
-    let projHtml = "<section><h2>Key Projects</h2>";
+    let projHtml = '<section><h2>Key Projects</h2><ul>';
     data.projects.forEach(p => {
-      projHtml += '<div class="proj"><b>' + fmt(p.title) + "</b> " + fmt(p.body) + "</div>";
+      projHtml += "<li><strong>" + fmt(p.title) + "</strong> " + fmt(p.body) + "</li>";
     });
-    projHtml += "</section>";
+    projHtml += "</ul></section>";
     parts.push(projHtml);
 
     // Education
     let eduHtml = "<section><h2>Education</h2>";
     data.education.forEach(e => {
-      eduHtml += '<div class="edu-row"><div class="edu-deg">' + fmt(e.degree) +
-        '</div><div class="edu-date">' + escapeHtml(e.date) + "</div></div>";
+      const dateStr = e.date ? " | " + escapeHtml(e.date) : "";
+      eduHtml += '<p class="edu-line">' + fmt(e.degree) + dateStr + "</p>";
     });
     eduHtml += "</section>";
     parts.push(eduHtml);
