@@ -585,8 +585,8 @@
         : escapeHtml(c.text);
       contactHtml += "<span>" + inner + "</span>";
       const isLast = i === data.contacts.length - 1;
-      if (c.break) contactHtml += "<br />";
-      else if (!isLast) contactHtml += '<span class="sep">·</span>';
+      if (c.break) contactHtml += "<br />\n";
+      else if (!isLast) contactHtml += ' <span class="sep">·</span> ';
     });
 
     parts.push(
