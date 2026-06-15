@@ -92,6 +92,124 @@
     .fit-pill.ok { color: #2dd4bf; border-color: rgba(45,212,191,0.4); background: rgba(45,212,191,0.08); }
     .fit-pill.warn { color: #f87171; border-color: rgba(248,113,113,0.45); background: rgba(248,113,113,0.1); }
 
+    /* ----- ATS / writing analysis ----- */
+    .ats-pill {
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--app-border);
+      white-space: nowrap;
+    }
+    .ats-pill.good { color: #34d399; border-color: rgba(52,211,153,0.45); background: rgba(52,211,153,0.1); }
+    .ats-pill.mid  { color: #fbbf24; border-color: rgba(251,191,36,0.45); background: rgba(251,191,36,0.1); }
+    .ats-pill.low  { color: #f87171; border-color: rgba(248,113,113,0.45); background: rgba(248,113,113,0.1); }
+
+    .analysis-panel {
+      position: fixed;
+      top: 53px;
+      right: 0;
+      width: 380px;
+      max-width: 92vw;
+      height: calc(100vh - 53px);
+      background: var(--app-panel);
+      border-left: 1px solid var(--app-border);
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform 0.2s ease;
+      z-index: 40;
+      padding: 16px 16px 60px;
+      box-shadow: -16px 0 40px rgba(0,0,0,0.35);
+    }
+    body.show-analysis .analysis-panel { transform: none; }
+    .analysis-panel h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--app-accent);
+      margin: 18px 0 8px;
+    }
+    .analysis-panel h3:first-of-type { margin-top: 0; }
+    .ap-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      font-size: 18px;
+      line-height: 1;
+      color: var(--app-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .ap-close:hover { color: var(--app-text); }
+
+    .score-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--app-panel-2);
+      border: 1px solid var(--app-border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .score-num { font-size: 30px; font-weight: 800; line-height: 1; white-space: nowrap; }
+    .score-num small { font-size: 13px; font-weight: 600; color: var(--app-muted); }
+    .score-meta { font-size: 11px; color: var(--app-muted); flex: 1; }
+    .score-bar { height: 6px; border-radius: 999px; background: var(--app-border); margin-top: 7px; overflow: hidden; }
+    .score-bar > i { display: block; height: 100%; border-radius: 999px; }
+    .s-good { color: #34d399; } .bg-good { background: #34d399; }
+    .s-mid  { color: #fbbf24; } .bg-mid  { background: #fbbf24; }
+    .s-low  { color: #f87171; } .bg-low  { background: #f87171; }
+
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .check-row .ck { flex: 0 0 16px; font-weight: 700; text-align: center; }
+    .check-row .ck.pass { color: #34d399; }
+    .check-row .ck.fail { color: #f87171; }
+    .check-row .ck.warn { color: #fbbf24; }
+    .check-row .ck-detail { color: var(--app-muted); font-size: 11px; }
+
+    .issue {
+      border-left: 3px solid var(--app-border);
+      padding: 7px 10px;
+      margin-bottom: 7px;
+      background: var(--app-panel-2);
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+    }
+    .issue.error { border-left-color: #f87171; }
+    .issue.warn  { border-left-color: #fbbf24; }
+    .issue.info  { border-left-color: #60a5fa; }
+    .issue .where { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--app-muted); }
+    .issue .msg { margin-top: 2px; color: var(--app-text); }
+    .issue .quote { color: var(--app-muted); font-style: italic; margin-top: 2px; }
+    .issue .sug { margin-top: 3px; }
+    .issue .sug b { color: #34d399; }
+
+    .verb-cat { margin-bottom: 8px; }
+    .verb-cat .vc-title { font-size: 11px; font-weight: 700; color: var(--app-text); margin-bottom: 4px; }
+    .chip {
+      display: inline-block;
+      font-size: 11px;
+      color: var(--app-muted);
+      background: var(--app-panel-2);
+      border: 1px solid var(--app-border);
+      border-radius: 6px;
+      padding: 2px 7px;
+      margin: 0 4px 4px 0;
+    }
+    .empty-good { font-size: 12px; color: #34d399; padding: 6px 0; }
+    .ap-note { font-size: 11px; color: var(--app-muted); line-height: 1.5; margin: 2px 0 6px; }
+
+    @media print { .analysis-panel { display: none !important; } }
+
     .layout {
       display: grid;
       grid-template-columns: minmax(360px, 460px) 1fr;
@@ -414,7 +532,9 @@
   <div class="toolbar">
     <div class="brand"><span>Resume Builder</span></div>
     <span class="fit-pill" id="fitPill"></span>
+    <span class="ats-pill" id="atsPill" title="Open ATS &amp; writing analysis">ATS &mdash;</span>
     <span class="saved-pill" id="savedPill"></span>
+    <button class="btn" id="btnAnalysis">Analysis</button>
     <button class="btn" id="btnImport">Import JSON</button>
     <button class="btn" id="btnExport">Export JSON</button>
     <button class="btn danger" id="btnReset">Reset</button>
@@ -430,6 +550,8 @@
       </div>
     </div>
   </div>
+
+  <aside class="analysis-panel" id="analysisPanel"></aside>
 
   <script>
   "use strict";
@@ -643,12 +765,13 @@
     parts.push(eduHtml);
 
     r.innerHTML = parts.join("");
-    requestAnimationFrame(updatePageFit);
+    requestAnimationFrame(() => { updatePageFit(); renderAnalysis(); });
   }
 
   /* ============================================================
      PAGE-FIT MEASUREMENT + PAGE-BREAK GUIDES
      ============================================================ */
+  let lastPageCount = 1;
   const PX_PER_MM = 96 / 25.4;
   const USABLE_MM = 297 - 11 - 11;       // A4 height minus top+bottom margins
   const USABLE_PX = USABLE_MM * PX_PER_MM;
@@ -662,6 +785,7 @@
 
     const h = resume.offsetHeight;
     const pages = Math.max(1, Math.ceil(h / USABLE_PX - 0.002));
+    lastPageCount = pages;
 
     pill.classList.remove("ok", "warn");
     if (pages <= 2) {
@@ -896,6 +1020,237 @@
   }
 
   /* ============================================================
+     ATS & WRITING ANALYSIS (offline, heuristic)
+     ============================================================ */
+  const ACTION_VERBS = {
+    "Leadership": ["Led","Directed","Spearheaded","Orchestrated","Coordinated","Oversaw","Mentored","Drove","Championed"],
+    "Built / Engineered": ["Built","Architected","Engineered","Developed","Designed","Implemented","Deployed","Automated","Configured","Provisioned","Programmed"],
+    "Improved": ["Optimized","Improved","Increased","Reduced","Accelerated","Streamlined","Enhanced","Consolidated","Refactored","Hardened","Scaled"],
+    "Ownership": ["Owned","Managed","Administered","Operated","Maintained","Governed","Standardized"],
+    "Analysis": ["Analyzed","Diagnosed","Investigated","Evaluated","Audited","Identified","Resolved","Troubleshot"],
+    "Delivery": ["Delivered","Shipped","Launched","Executed","Completed","Migrated","Decommissioned"],
+    "Impact": ["Achieved","Saved","Cut","Eliminated","Prevented","Secured","Generated"]
+  };
+
+  const STRONG_VERBS = new Set();
+  Object.values(ACTION_VERBS).forEach(arr => arr.forEach(v => STRONG_VERBS.add(v.toLowerCase())));
+  ["own","build","architect","engineer","develop","design","implement","deploy","automate","configure","provision","program","optimize","improve","increase","reduce","accelerate","streamline","enhance","consolidate","refactor","harden","scale","manage","administer","operate","maintain","govern","standardize","analyze","diagnose","investigate","evaluate","audit","identify","resolve","troubleshoot","deliver","ship","launch","execute","migrate","decommission","lead","drive","run","support","create","produce","achieve","save","cut","eliminate","prevent","secure","generate","spearhead","orchestrate","coordinate","mentor","oversee","direct","partner","collaborate","negotiate","present","authored","wrote","write","ran"].forEach(v => STRONG_VERBS.add(v));
+
+  const WEAK_STARTS = [
+    { re: /^responsible for\b/i, sug: ["Owned","Led","Managed","Directed"] },
+    { re: /^worked on\b/i,       sug: ["Built","Developed","Engineered","Delivered"] },
+    { re: /^worked with\b/i,     sug: ["Partnered with","Collaborated with","Leveraged"] },
+    { re: /^helped to\b|^helped\b/i, sug: ["Enabled","Accelerated","Drove","Supported"] },
+    { re: /^assisted (with|in)\b|^assisted\b/i, sug: ["Supported","Facilitated","Partnered on"] },
+    { re: /^handled\b/i,         sug: ["Managed","Resolved","Administered","Operated"] },
+    { re: /^involved in\b/i,     sug: ["Drove","Led","Contributed to"] },
+    { re: /^in charge of\b/i,    sug: ["Led","Owned","Directed"] },
+    { re: /^tasked with\b/i,     sug: ["Led","Owned","Executed"] },
+    { re: /^duties includ(ed|e)\b/i, sug: ["Led","Delivered","Managed"] },
+    { re: /^made\b/i,            sug: ["Built","Created","Engineered","Produced"] },
+    { re: /^did\b/i,             sug: ["Executed","Performed","Delivered"] },
+    { re: /^used\b/i,            sug: ["Leveraged","Applied","Utilized"] },
+    { re: /^utilized\b/i,        sug: ["Applied","Leveraged","Used"] },
+    { re: /^got\b/i,             sug: ["Achieved","Secured","Obtained"] },
+    { re: /^participated in\b/i, sug: ["Contributed to","Drove","Led"] }
+  ];
+
+  const FILLER = ["very","really","extremely","various","a lot of","things","stuff","synergy","go-getter","team player","results-driven","hard-working","detail-oriented","self-starter","think outside the box"];
+  const MISSPELL = { "teh":"the","recieve":"receive","occured":"occurred","seperate":"separate","definately":"definitely","enviroment":"environment","wich":"which","alot":"a lot","sucessful":"successful","accross":"across","mantain":"maintain","existance":"existence","priviledge":"privilege","responsibilty":"responsibility","experiance":"experience" };
+
+  function stripMd(s) { return String(s).replace(/\*\*/g, "").trim(); }
+
+  function analyzeText(where, raw, opts) {
+    opts = opts || {};
+    const issues = [];
+    const text = stripMd(raw);
+    if (!text) return issues;
+    const lower = text.toLowerCase();
+
+    const fp = text.match(/\b(I|I'm|I've|I'll|me|my|mine|we|we're|our|ours|us)\b/g);
+    if (fp && fp.length) {
+      issues.push({ where, sev: "error", msg: "Uses first-person pronouns (" + [...new Set(fp)].slice(0,4).join(", ") + "). Resumes are written without I/we/my.", quote: text });
+    }
+
+    if (opts.bullet) {
+      let matched = false;
+      for (const w of WEAK_STARTS) {
+        if (w.re.test(text)) {
+          issues.push({ where, sev: "error", msg: "Weak opener \u2014 start with a strong action verb.", quote: text, sug: w.sug });
+          matched = true; break;
+        }
+      }
+      if (!matched) {
+        const firstRaw = text.split(/\s+/)[0] || "";
+        const first = firstRaw.replace(/[^A-Za-z'-]/g, "").toLowerCase();
+        if (first && !STRONG_VERBS.has(first)) {
+          issues.push({ where, sev: "info", msg: "May not start with an action verb (\u201C" + firstRaw + "\u201D).", quote: text, sug: ["Led","Built","Improved","Delivered"] });
+        }
+      }
+      if (!/\d/.test(text)) {
+        issues.push({ where, sev: "warn", msg: "No number/metric \u2014 quantify the impact (%, count, time, $).", quote: text });
+      }
+    }
+
+    if (/\b(was|were|been|being|is|are|be)\s+(\w+ed|built|made|done|written|driven|given|taken|seen|known|shown|run|held|sent|kept|led)\b/i.test(text)) {
+      issues.push({ where, sev: "warn", msg: "Possible passive voice \u2014 prefer active voice.", quote: text });
+    }
+
+    const found = FILLER.filter(f => new RegExp("\\b" + f.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i").test(lower));
+    if (found.length) {
+      issues.push({ where, sev: "info", msg: "Filler/buzzword: " + found.slice(0,3).join(", ") + " \u2014 cut or replace with specifics.", quote: text });
+    }
+
+    const misses = Object.keys(MISSPELL).filter(m => new RegExp("\\b" + m + "\\b", "i").test(lower));
+    if (misses.length) {
+      issues.push({ where, sev: "error", msg: "Likely misspelling: " + misses.map(m => m + " \u2192 " + MISSPELL[m]).join(", "), quote: text });
+    }
+
+    if (/ {2,}/.test(raw)) issues.push({ where, sev: "info", msg: "Double space \u2014 collapse to one.", quote: text });
+    if (/\s[,.;:]/.test(text)) issues.push({ where, sev: "info", msg: "Space before punctuation.", quote: text });
+
+    const rep = text.match(/\b(\w+)\s+\1\b/i);
+    if (rep) issues.push({ where, sev: "warn", msg: "Repeated word: \u201C" + rep[1] + "\u201D.", quote: text });
+
+    text.split(/(?<=[.!?])\s+/).forEach(sent => {
+      const wc = sent.trim().split(/\s+/).filter(Boolean).length;
+      if (wc > 40) issues.push({ where, sev: "info", msg: "Long sentence (" + wc + " words) \u2014 consider splitting.", quote: sent.trim() });
+    });
+
+    return issues;
+  }
+
+  function analyze() {
+    const issues = [];
+    let bulletTotal = 0, bulletWithNum = 0, bulletStrong = 0, firstPerson = 0;
+
+    analyzeText("Summary", data.summary, {}).forEach(i => { issues.push(i); if (i.msg.indexOf("first-person") >= 0) firstPerson++; });
+
+    data.skills.forEach((sk, i) => {
+      analyzeText("Skill: " + (sk.k || ("row " + (i+1))), sk.v, {}).forEach(x => issues.push(x));
+    });
+
+    data.experience.forEach((job, i) => {
+      (job.bullets || []).forEach((b, j) => {
+        const where = "Role " + (i+1) + " \u00B7 Bullet " + (j+1);
+        const t = stripMd(b);
+        if (t) {
+          bulletTotal++;
+          if (/\d/.test(t)) bulletWithNum++;
+          const first = (t.split(/\s+/)[0] || "").replace(/[^A-Za-z'-]/g, "").toLowerCase();
+          const weak = WEAK_STARTS.some(w => w.re.test(t));
+          if (!weak && STRONG_VERBS.has(first)) bulletStrong++;
+        }
+        analyzeText(where, b, { bullet: true }).forEach(x => { issues.push(x); if (x.msg.indexOf("first-person") >= 0) firstPerson++; });
+      });
+    });
+
+    data.projects.forEach((p, i) => {
+      analyzeText("Project " + (i+1), (p.title || "") + " " + (p.body || ""), {}).forEach(x => issues.push(x));
+    });
+
+    const emailOk = data.contacts.some(c => /@/.test(c.text) || /^mailto:/i.test(c.href || ""));
+    const phoneOk = data.contacts.some(c => /\+?\d[\d\s\-()]{7,}/.test(c.text));
+    const locOk   = data.contacts.some(c => /,|india|remote|bangalore|hyderabad|pune|noida|delhi|mumbai/i.test(c.text));
+    const linkOk  = data.contacts.some(c => /linkedin|github|gitlab|portfolio|http/i.test((c.href || "") + " " + c.text));
+    const wordCount = (JSON.stringify([data.summary, data.skills, data.experience, data.projects]).match(/[A-Za-z][A-Za-z'-]+/g) || []).length;
+
+    const quantRatio = bulletTotal ? bulletWithNum / bulletTotal : 0;
+    const strongRatio = bulletTotal ? bulletStrong / bulletTotal : 0;
+
+    const checks = [
+      { label: "Email present", pass: emailOk },
+      { label: "Phone present", pass: phoneOk },
+      { label: "Location present", pass: locOk },
+      { label: "LinkedIn / GitHub link", pass: linkOk },
+      { label: "Summary written", pass: !!stripMd(data.summary) },
+      { label: "At least 4 skill rows", pass: data.skills.length >= 4 },
+      { label: "Experience with bullets", pass: data.experience.some(j => (j.bullets||[]).some(b => stripMd(b))) },
+      { label: "Education present", pass: data.education.length >= 1 },
+      { label: "Fits 1\u20132 pages", pass: lastPageCount <= 2, detail: lastPageCount + " page(s)" },
+      { label: "Reasonable length", pass: wordCount >= 350 && wordCount <= 900, detail: wordCount + " words" },
+      { label: "Most bullets quantified", pass: quantRatio >= 0.5, detail: Math.round(quantRatio*100) + "% have a number" },
+      { label: "No first-person pronouns", pass: firstPerson === 0, detail: firstPerson ? (firstPerson + " found") : "" },
+      { label: "Strong action-verb openers", pass: strongRatio >= 0.7, detail: Math.round(strongRatio*100) + "% strong" },
+      { label: "Standard section headings", pass: true }
+    ];
+
+    let score = 0;
+    score += (emailOk?5:0) + (phoneOk?4:0) + (locOk?3:0) + (linkOk?3:0);
+    score += (checks[4].pass?4:0)+(checks[5].pass?4:0)+(checks[6].pass?4:0)+(checks[7].pass?3:0);
+    score += (lastPageCount<=2?10:0);
+    score += (checks[9].pass?5:0);
+    score += Math.round(quantRatio*20);
+    score += (firstPerson===0?15:Math.max(0,15-firstPerson*3));
+    score += Math.round(strongRatio*15);
+    const errCount = issues.filter(i => i.sev==="error").length;
+    score += Math.max(0, 5 - Math.min(5, errCount));
+    score = Math.max(0, Math.min(100, Math.round(score)));
+
+    return { score, checks, issues };
+  }
+
+  function renderAnalysis() {
+    const panel = document.getElementById("analysisPanel");
+    const pill = document.getElementById("atsPill");
+    if (!panel) return;
+    const a = analyze();
+
+    if (pill) {
+      pill.classList.remove("good","mid","low");
+      pill.classList.add(a.score >= 80 ? "good" : a.score >= 60 ? "mid" : "low");
+      pill.textContent = "ATS " + a.score;
+    }
+    if (!document.body.classList.contains("show-analysis")) return;
+
+    const tier = a.score >= 80 ? "good" : a.score >= 60 ? "mid" : "low";
+    const tierWord = a.score >= 80 ? "Strong" : a.score >= 60 ? "Needs work" : "Weak";
+
+    let html = '<button class="ap-close" id="apClose" title="Close">\u00D7</button>';
+    html += '<h3>ATS Score</h3>';
+    html += '<div class="score-card"><div class="score-num s-' + tier + '">' + a.score + '<small>/100</small></div>' +
+            '<div class="score-meta"><b class="s-' + tier + '">' + tierWord + '</b>' +
+            '<div class="score-bar"><i class="bg-' + tier + '" style="width:' + a.score + '%"></i></div>' +
+            'Single column, standard fonts, real text \u2014 no tables, images or icons.</div></div>';
+
+    html += '<h3>Checklist</h3>';
+    a.checks.forEach(c => {
+      const soft = (c.label.indexOf("first-person")>=0 || c.label.indexOf("quantified")>=0 || c.label.indexOf("action-verb")>=0 || c.label.indexOf("length")>=0 || c.label.indexOf("pages")>=0);
+      const cls = c.pass ? "pass" : (soft ? "warn" : "fail");
+      const mark = c.pass ? "\u2713" : (cls === "warn" ? "\u26A0" : "\u2717");
+      html += '<div class="check-row"><span class="ck ' + cls + '">' + mark + '</span>' +
+              '<span>' + escapeHtml(c.label) + (c.detail ? ' <span class="ck-detail">(' + escapeHtml(c.detail) + ')</span>' : '') + '</span></div>';
+    });
+
+    const order = { error: 0, warn: 1, info: 2 };
+    const sorted = a.issues.slice().sort((x,y) => order[x.sev] - order[y.sev]);
+    html += '<h3>Writing Suggestions (' + sorted.length + ')</h3>';
+    if (!sorted.length) {
+      html += '<div class="empty-good">\u2713 No writing issues detected.</div>';
+    } else {
+      sorted.forEach(it => {
+        html += '<div class="issue ' + it.sev + '"><div class="where">' + escapeHtml(it.where) + '</div>' +
+                '<div class="msg">' + escapeHtml(it.msg) + '</div>';
+        if (it.quote) html += '<div class="quote">\u201C' + escapeHtml(it.quote.length > 110 ? it.quote.slice(0,110) + "\u2026" : it.quote) + '\u201D</div>';
+        if (it.sug) html += '<div class="sug">Try: <b>' + it.sug.map(escapeHtml).join("</b>, <b>") + '</b></div>';
+        html += '</div>';
+      });
+    }
+
+    html += '<h3>Action Verb Library</h3>';
+    html += '<div class="ap-note">Open every bullet with one of these, matched to the result.</div>';
+    Object.keys(ACTION_VERBS).forEach(cat => {
+      html += '<div class="verb-cat"><div class="vc-title">' + escapeHtml(cat) + '</div>';
+      html += ACTION_VERBS[cat].map(v => '<span class="chip">' + escapeHtml(v) + '</span>').join("");
+      html += '</div>';
+    });
+
+    panel.innerHTML = html;
+    const close = document.getElementById("apClose");
+    if (close) close.addEventListener("click", () => document.body.classList.remove("show-analysis"));
+  }
+
+  /* ============================================================
      TOOLBAR ACTIONS
      ============================================================ */
   document.getElementById("btnExport").addEventListener("click", () => {
@@ -941,6 +1296,14 @@
   });
 
   document.getElementById("btnPrint").addEventListener("click", () => window.print());
+
+  function toggleAnalysis(force) {
+    const show = typeof force === "boolean" ? force : !document.body.classList.contains("show-analysis");
+    document.body.classList.toggle("show-analysis", show);
+    if (show) renderAnalysis();
+  }
+  document.getElementById("btnAnalysis").addEventListener("click", () => toggleAnalysis());
+  document.getElementById("atsPill").addEventListener("click", () => toggleAnalysis(true));
 
   /* ============================================================
      INIT
