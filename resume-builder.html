@@ -462,9 +462,14 @@
     /* ============================================================
        PRINT — only the resume, at A4, app chrome hidden
        ============================================================ */
-    @page { size: A4; margin: 7mm 9mm; }
+    @page { size: A4; margin: 0; }
     @media print {
-      html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        background: #fff !important;
+        height: auto !important;
+      }
       .toolbar, .form-pane, .preview-pane { display: block; }
       .toolbar, .form-pane { display: none !important; }
       .layout { display: block; height: auto; }
@@ -477,7 +482,8 @@
       .page {
         width: auto;
         min-height: 0;
-        padding: 0;
+        padding: 7mm 9mm;
+        background: #fff;
         box-shadow: none;
       }
       .page-guide { display: none !important; }
