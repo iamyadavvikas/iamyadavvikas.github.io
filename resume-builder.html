@@ -1276,12 +1276,17 @@
           <meta charset="UTF-8">
           <title>${data.name} - Resume</title>
           <style>
+            @page {
+              size: A4;
+              margin: 0.35in 0.43in;
+            }
             body {
               font-family: Arial, Helvetica, sans-serif;
               line-height: 1.25;
               margin: 0;
               padding: 0;
               color: #000;
+              page-break-after: avoid;
             }
             * {
               margin: 0;
@@ -1291,6 +1296,7 @@
             header {
               text-align: center;
               margin-bottom: 6px;
+              page-break-inside: avoid;
             }
             .name {
               font-size: 22px;
@@ -1319,6 +1325,7 @@
             }
             section {
               margin-top: 7px;
+              page-break-inside: avoid;
             }
             h2 {
               font-size: 12px;
@@ -1345,6 +1352,7 @@
               font-size: 11px;
               font-weight: 700;
               margin-bottom: 1px;
+              page-break-inside: avoid;
             }
             .job-company-line {
               font-size: 10.5px;
@@ -1359,6 +1367,7 @@
             li {
               font-size: 10.5px;
               margin-bottom: 2px;
+              page-break-inside: avoid;
             }
             li strong {
               font-weight: 700;
@@ -1366,6 +1375,7 @@
             .edu-line {
               font-size: 11px;
               margin-bottom: 3px;
+              page-break-inside: avoid;
             }
             .edu-line strong {
               font-weight: 700;
