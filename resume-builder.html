@@ -1269,24 +1269,23 @@
     // Generate resume content as HTML
     const resumeHtml = document.getElementById("resume").innerHTML;
     
-    // Create a complete HTML document styled for Word with exact one-page constraints
+    // Create a complete HTML document styled for Word with aggressive one-page constraints
     const htmlContent = `
+      <!DOCTYPE html>
       <html>
         <head>
           <meta charset="UTF-8">
           <title>${data.name} - Resume</title>
           <style>
-            @page {
-              size: A4;
-              margin: 9mm 11mm;
-            }
             body {
               font-family: Arial, Helvetica, sans-serif;
-              line-height: 1.25;
-              margin: 0;
+              line-height: 1.15;
+              margin: 0.5in 0.5in;
               padding: 0;
               color: #000;
-              font-size: 11px;
+              font-size: 11pt;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
             }
             * {
               margin: 0;
@@ -1295,96 +1294,108 @@
             }
             header {
               text-align: center;
-              margin-bottom: 6px;
+              margin-bottom: 4px;
               page-break-inside: avoid;
+              line-height: 1;
             }
             .name {
-              font-size: 22px;
-              font-weight: 700;
-              margin-bottom: 2px;
+              font-size: 18pt;
+              font-weight: bold;
+              margin-bottom: 1px;
             }
             .title {
-              font-size: 12px;
+              font-size: 11pt;
               font-weight: 600;
-              letter-spacing: 0.3px;
-              margin-bottom: 4px;
+              letter-spacing: 0.2px;
+              margin-bottom: 2px;
+              line-height: 1.1;
             }
             .contact {
-              font-size: 11px;
-              line-height: 1.4;
+              font-size: 10pt;
+              line-height: 1.2;
             }
             .contact a {
-              color: #0563c1;
-              text-decoration: underline;
+              color: #000;
+              text-decoration: none;
             }
             .contact span {
               white-space: nowrap;
             }
             .sep {
-              margin: 0 4px;
+              margin: 0 2px;
             }
             section {
-              margin-top: 7px;
+              margin-top: 4px;
               page-break-inside: avoid;
+              page-break-after: auto;
             }
             h2 {
-              font-size: 12px;
-              font-weight: 700;
+              font-size: 11pt;
+              font-weight: bold;
               text-transform: uppercase;
-              letter-spacing: 0.5px;
-              border-bottom: 1.5px solid #000;
-              padding-bottom: 1px;
-              margin-bottom: 3px;
+              letter-spacing: 0.3px;
+              border-bottom: 1px solid #000;
+              padding-bottom: 0px;
+              margin-bottom: 2px;
+              margin-top: 4px;
+              line-height: 1;
             }
             p.summary {
-              font-size: 11px;
-              margin-bottom: 3px;
+              font-size: 10pt;
+              margin-bottom: 1px;
               text-align: left;
+              line-height: 1.2;
             }
             .skills p {
-              font-size: 10.5px;
-              margin-bottom: 2px;
+              font-size: 10pt;
+              margin-bottom: 1px;
+              line-height: 1.2;
             }
             .skills strong {
-              font-weight: 700;
+              font-weight: bold;
             }
             .job-title-line {
-              font-size: 11px;
-              font-weight: 700;
-              margin-bottom: 1px;
+              font-size: 10pt;
+              font-weight: bold;
+              margin-bottom: 0px;
               page-break-inside: avoid;
+              line-height: 1;
             }
             .job-company-line {
-              font-size: 10.5px;
+              font-size: 9.5pt;
               font-style: italic;
-              margin-bottom: 3px;
+              margin-bottom: 1px;
+              line-height: 1;
             }
             ul {
               list-style: disc;
-              margin: 0 0 3px;
-              padding-left: 16px;
+              margin: 0 0 1px;
+              padding-left: 14px;
             }
             li {
-              font-size: 10.5px;
-              margin-bottom: 2px;
+              font-size: 10pt;
+              margin-bottom: 1px;
               page-break-inside: avoid;
+              line-height: 1.15;
             }
             li strong {
-              font-weight: 700;
+              font-weight: bold;
             }
             .edu-line {
-              font-size: 11px;
-              margin-bottom: 3px;
+              font-size: 10pt;
+              margin-bottom: 1px;
               page-break-inside: avoid;
+              line-height: 1.1;
             }
             .edu-line strong {
-              font-weight: 700;
+              font-weight: bold;
             }
             strong {
-              font-weight: 700;
+              font-weight: bold;
             }
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            br {
+              line-height: 0.5;
+            }
           </style>
         </head>
         <body>
