@@ -1269,7 +1269,7 @@
     // Generate resume content as HTML
     const resumeHtml = document.getElementById("resume").innerHTML;
     
-    // Create a complete HTML document styled for Word
+    // Create a complete HTML document styled for Word with exact one-page constraints
     const htmlContent = `
       <html>
         <head>
@@ -1278,7 +1278,7 @@
           <style>
             @page {
               size: A4;
-              margin: 0.35in 0.43in;
+              margin: 9mm 11mm;
             }
             body {
               font-family: Arial, Helvetica, sans-serif;
@@ -1286,7 +1286,7 @@
               margin: 0;
               padding: 0;
               color: #000;
-              page-break-after: avoid;
+              font-size: 11px;
             }
             * {
               margin: 0;
@@ -1383,6 +1383,8 @@
             strong {
               font-weight: 700;
             }
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           </style>
         </head>
         <body>
