@@ -501,6 +501,7 @@
     <button class="btn" id="btnAnalysis">Analysis</button>
     <button class="btn" id="btnImport">Import JSON</button>
     <button class="btn" id="btnExport">Export JSON</button>
+    <button class="btn" id="btnDownloadDoc">Download as DOC</button>
     <button class="btn danger" id="btnReset">Reset</button>
     <button class="btn primary" id="btnPrint">Print / Save PDF</button>
     <input type="file" id="fileInput" accept="application/json,.json" hidden />
@@ -1263,6 +1264,134 @@
   });
 
   document.getElementById("btnPrint").addEventListener("click", () => window.print());
+
+  document.getElementById("btnDownloadDoc").addEventListener("click", () => {
+    // Generate resume content as HTML
+    const resumeHtml = document.getElementById("resume").innerHTML;
+    
+    // Create a complete HTML document styled for Word
+    const htmlContent = `
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>${data.name} - Resume</title>
+          <style>
+            body {
+              font-family: Arial, Helvetica, sans-serif;
+              line-height: 1.25;
+              margin: 0;
+              padding: 0;
+              color: #000;
+            }
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            header {
+              text-align: center;
+              margin-bottom: 6px;
+            }
+            .name {
+              font-size: 22px;
+              font-weight: 700;
+              margin-bottom: 2px;
+            }
+            .title {
+              font-size: 12px;
+              font-weight: 600;
+              letter-spacing: 0.3px;
+              margin-bottom: 4px;
+            }
+            .contact {
+              font-size: 11px;
+              line-height: 1.4;
+            }
+            .contact a {
+              color: #0563c1;
+              text-decoration: underline;
+            }
+            .contact span {
+              white-space: nowrap;
+            }
+            .sep {
+              margin: 0 4px;
+            }
+            section {
+              margin-top: 7px;
+            }
+            h2 {
+              font-size: 12px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              border-bottom: 1.5px solid #000;
+              padding-bottom: 1px;
+              margin-bottom: 3px;
+            }
+            p.summary {
+              font-size: 11px;
+              margin-bottom: 3px;
+              text-align: left;
+            }
+            .skills p {
+              font-size: 10.5px;
+              margin-bottom: 2px;
+            }
+            .skills strong {
+              font-weight: 700;
+            }
+            .job-title-line {
+              font-size: 11px;
+              font-weight: 700;
+              margin-bottom: 1px;
+            }
+            .job-company-line {
+              font-size: 10.5px;
+              font-style: italic;
+              margin-bottom: 3px;
+            }
+            ul {
+              list-style: disc;
+              margin: 0 0 3px;
+              padding-left: 16px;
+            }
+            li {
+              font-size: 10.5px;
+              margin-bottom: 2px;
+            }
+            li strong {
+              font-weight: 700;
+            }
+            .edu-line {
+              font-size: 11px;
+              margin-bottom: 3px;
+            }
+            .edu-line strong {
+              font-weight: 700;
+            }
+            strong {
+              font-weight: 700;
+            }
+          </style>
+        </head>
+        <body>
+          ${resumeHtml}
+        </body>
+      </html>
+    `;
+
+    // Create a Blob from the HTML
+    const blob = new Blob([htmlContent], { type: "application/msword" });
+    
+    // Create download link
+    const url = URL.createObjectURL(blob);
+    const link = el("a", { href: url, download: data.name.replace(/\\s+/g, "_") + ".doc" });
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  });
 
   function toggleAnalysis(force) {
     const show = typeof force === "boolean" ? force : !document.body.classList.contains("show-analysis");
