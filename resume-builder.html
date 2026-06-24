@@ -572,9 +572,9 @@
       }
     ],
     projects: [
-      { title: "Splunk Logging Platform (built from scratch):", body: "Set up the license master and heavy forwarders entirely in Terraform (Launch Templates, ASGs, AMIs). A self-healing, code-managed logging layer the Photos & Media team uses every day." },
-      { title: "Cloud Cost Optimisation:", body: "Decommissioning stale ASGs, Launch Templates, and dead resources; Jenkins Job DSL teardown-as-code for S3 and SSM; and the media image-recompression pipeline (raw → recompressed in S3) for ongoing storage savings. All shipped as reviewed, reversible PRs." },
-      { title: "Observability & Incident Response:", body: "Built and run Splunk. Own VividCortex database monitoring (slow-query and query-plan analysis on RDS). Use SignalFX, RUM, APM, and synthetics across the photo-upload and CreateMedia KPIs. Fast revert PRs are the main rollback during incidents." }
+      { title: "Splunk Logging Platform (built from scratch):", body: "Set up the license master and heavy forwarders entirely in Terraform (Launch Templates, ASGs, AMIs). A self-healing, code-managed logging layer the Photos & Media team uses every day.", github: "", live: "" },
+      { title: "Cloud Cost Optimisation:", body: "Decommissioning stale ASGs, Launch Templates, and dead resources; Jenkins Job DSL teardown-as-code for S3 and SSM; and the media image-recompression pipeline (raw → recompressed in S3) for ongoing storage savings. All shipped as reviewed, reversible PRs.", github: "", live: "" },
+      { title: "Observability & Incident Response:", body: "Built and run Splunk. Own VividCortex database monitoring (slow-query and query-plan analysis on RDS). Use SignalFX, RUM, APM, and synthetics across the photo-upload and CreateMedia KPIs. Fast revert PRs are the main rollback during incidents.", github: "", live: "" }
     ],
     education: [
       { degree: "**Master of Technology (M.Tech)** — Indian Institute of Technology Kharagpur (IIT Kharagpur)", date: "2020 – 2022" },
@@ -602,9 +602,11 @@
   }
 
   function migrate(d) {
-    // Ensure all top-level keys exist so older saves don't break the UI.
     const base = clone(DEFAULT_DATA);
-    return Object.assign(base, d);
+    const merged = Object.assign(base, d);
+    if (merged.projects) merged.projects.forEach(p => { if (!p.github) p.github = ''; if (!p.live) p.live = ''; });
+    if (merged.experience) merged.experience.forEach(j => { if (!j.bullets) j.bullets = []; });
+    return merged;
   }
 
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
@@ -719,7 +721,12 @@
     // Projects
     let projHtml = '<section><h2>Key Projects</h2><ul>';
     data.projects.forEach(p => {
-      projHtml += "<li><strong>" + fmt(p.title) + "</strong> " + fmt(p.body) + "</li>";
+      projHtml += "<li><strong>" + fmt(p.title) + "</strong> " + fmt(p.body);
+      const links = [];
+      if (p.github) links.push('<a href="' + escapeHtml(p.github) + '" style="color:#000;">GitHub</a>');
+      if (p.live) links.push('<a href="' + escapeHtml(p.live) + '" style="color:#000;">Live</a>');
+      if (links.length) projHtml += ' <span style="font-size:10px;">[' + links.join(' | ') + ']</span>';
+      projHtml += "</li>";
     });
     projHtml += "</ul></section>";
     parts.push(projHtml);
@@ -957,11 +964,13 @@
       ]));
       item.appendChild(textField("Title (bold)", p.title, v => update(["projects", i, "title"], v)));
       item.appendChild(textField("Body", p.body, v => update(["projects", i, "body"], v), true));
+      item.appendChild(textField("GitHub URL (optional)", p.github, v => update(["projects", i, "github"], v)));
+      item.appendChild(textField("Live Site URL (optional)", p.live, v => update(["projects", i, "live"], v)));
       pg.body.appendChild(item);
     });
     pg.body.appendChild(el("button", {
       class: "add-btn", text: "+ Add project",
-      onclick: () => { data.projects.push({ title: "", body: "" }); save(); renderForm(); renderPreview(); }
+      onclick: () => { data.projects.push({ title: "", body: "", github: "", live: "" }); save(); renderForm(); renderPreview(); }
     }));
     pane.appendChild(pg.group);
 
