@@ -490,6 +490,118 @@
       .resume section { page-break-inside: avoid; }
       .resume li, .resume .job-head { page-break-inside: avoid; }
     }
+
+    /* ============================================================
+       RESUME SIDEBAR
+       ============================================================ */
+    .resume-sidebar {
+      position: fixed;
+      top: 53px;
+      left: 0;
+      width: 300px;
+      max-width: 88vw;
+      height: calc(100vh - 53px);
+      background: var(--app-panel);
+      border-right: 1px solid var(--app-border);
+      overflow-y: auto;
+      transform: translateX(-100%);
+      transition: transform 0.2s ease;
+      z-index: 39;
+      padding: 14px 14px 80px;
+      box-shadow: 12px 0 32px rgba(0,0,0,0.3);
+    }
+    body.show-resumes .resume-sidebar { transform: none; }
+    .rs-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .rs-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--app-accent);
+      margin: 0;
+    }
+    .rs-close {
+      background: none;
+      border: none;
+      color: var(--app-muted);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .rs-close:hover { color: var(--app-text); }
+    .rs-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 10px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .rs-item:hover { background: var(--app-panel-2); border-color: var(--app-border); }
+    .rs-item.active {
+      background: var(--app-panel-2);
+      border-color: var(--app-accent);
+    }
+    .rs-item .rs-name {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--app-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .rs-item .rs-date {
+      font-size: 10px;
+      color: var(--app-muted);
+      white-space: nowrap;
+    }
+    .rs-item .rs-actions {
+      display: flex;
+      gap: 3px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .rs-item:hover .rs-actions { opacity: 1; }
+    .rs-act {
+      font: inherit;
+      font-size: 11px;
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--app-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .rs-act:hover { border-color: var(--app-border); color: var(--app-text); }
+    .rs-act.del:hover { color: var(--app-danger); border-color: var(--app-danger); }
+    .rs-new-btn {
+      width: 100%;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--app-accent);
+      background: transparent;
+      border: 1px dashed var(--app-border);
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .rs-new-btn:hover { border-color: var(--app-accent); background: rgba(45,212,191,0.06); }
   </style>
 </head>
 <body>
@@ -500,6 +612,7 @@
     <span class="saved-pill" id="savedPill"></span>
     <button class="btn" id="btnAnalysis">Analysis</button>
     <button class="btn" id="btnJdMatch">JD Match</button>
+    <button class="btn" id="btnResumes">Resumes</button>
     <button class="btn" id="btnImport">Import JSON</button>
     <button class="btn" id="btnImportHtml">Import HTML</button>
     <button class="btn" id="btnExport">Export JSON</button>
@@ -520,6 +633,15 @@
   </div>
 
   <aside class="analysis-panel" id="analysisPanel"></aside>
+
+  <aside class="resume-sidebar" id="resumeSidebar">
+    <div class="rs-header">
+      <h3>My Resumes</h3>
+      <button class="rs-close" id="rsClose" title="Close">&times;</button>
+    </div>
+    <button class="rs-new-btn" id="rsNewBtn">+ New Resume</button>
+    <div id="rsList"></div>
+  </aside>
 
   <script>
   "use strict";
@@ -585,23 +707,129 @@
   };
 
   const STORAGE_KEY = "resumeData";
+  const RESUME_COLLECTION_KEY = "resumeCollection";
   const COLLAPSE_KEY = "resumeCollapse";
 
   let collapseState = {};
   try { collapseState = JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {}; } catch (e) { collapseState = {}; }
 
-  /* ============================================================
-     STATE
-     ============================================================ */
-  let data = load();
+  let resumeCollection = null;
+  let activeResumeId = null;
 
-  function load() {
+  /* ============================================================
+     COLLECTION MANAGEMENT
+     ============================================================ */
+
+  function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  function initCollection() {
+    let raw;
+    try { raw = localStorage.getItem(RESUME_COLLECTION_KEY); } catch (e) {}
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.resumes && Array.isArray(parsed.resumes) && parsed.resumes.length) {
+          resumeCollection = parsed;
+          activeResumeId = parsed.activeId || parsed.resumes[0].id;
+          const active = parsed.resumes.find(r => r.id === activeResumeId);
+          if (active) return migrate(clone(active.data));
+        }
+      } catch (e) {}
+    }
+    // Try old single-resume storage
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return migrate(JSON.parse(raw));
-    } catch (e) { /* ignore corrupt storage */ }
-    return clone(DEFAULT_DATA);
+      raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const oldData = migrate(JSON.parse(raw));
+        const id = genId();
+        resumeCollection = { resumes: [{ id, name: oldData.name || "My Resume", data: oldData, updatedAt: Date.now() }], activeId: id };
+        activeResumeId = id;
+        saveCollection();
+        return clone(oldData);
+      }
+    } catch (e) {}
+    // Fresh start
+    const def = clone(DEFAULT_DATA);
+    const id = genId();
+    resumeCollection = { resumes: [{ id, name: def.name || "My Resume", data: def, updatedAt: Date.now() }], activeId: id };
+    activeResumeId = id;
+    saveCollection();
+    return def;
   }
+
+  function saveCollection() {
+    if (!resumeCollection) return;
+    try { localStorage.setItem(RESUME_COLLECTION_KEY, JSON.stringify(resumeCollection)); } catch (e) {}
+  }
+
+  function updateCollectionData() {
+    if (!resumeCollection || !activeResumeId) return;
+    const r = resumeCollection.resumes.find(r => r.id === activeResumeId);
+    if (r) { r.data = clone(data); r.updatedAt = Date.now(); }
+  }
+
+  function saveCurrentToCollection() {
+    updateCollectionData();
+    saveCollection();
+  }
+
+  function switchResume(id) {
+    if (id === activeResumeId) return;
+    updateCollectionData();
+    const r = resumeCollection.resumes.find(r => r.id === id);
+    if (!r) return;
+    activeResumeId = id;
+    resumeCollection.activeId = id;
+    data = migrate(clone(r.data));
+    saveCollection();
+    renderForm();
+    renderPreview();
+    renderResumeSidebar();
+  }
+
+  function createResume(name) {
+    const def = clone(DEFAULT_DATA);
+    const id = genId();
+    resumeCollection.resumes.push({ id, name: name || "Untitled Resume", data: def, updatedAt: Date.now() });
+    switchResume(id);
+  }
+
+  function renameResume(id, name) {
+    const r = resumeCollection.resumes.find(r => r.id === id);
+    if (r) { r.name = name; saveCollection(); renderResumeSidebar(); }
+  }
+
+  function deleteResume(id) {
+    if (resumeCollection.resumes.length <= 1) { alert("Cannot delete the last resume."); return; }
+    if (!confirm("Delete this resume?")) return;
+    const isActive = id === activeResumeId;
+    if (isActive) updateCollectionData();
+    resumeCollection.resumes = resumeCollection.resumes.filter(r => r.id !== id);
+    if (isActive) {
+      const next = resumeCollection.resumes[0];
+      activeResumeId = next.id;
+      resumeCollection.activeId = next.id;
+      data = migrate(clone(next.data));
+      saveCollection();
+      renderForm();
+      renderPreview();
+      renderResumeSidebar();
+    } else {
+      saveCollection();
+      renderResumeSidebar();
+    }
+  }
+
+  function duplicateResume(id) {
+    const r = resumeCollection.resumes.find(r => r.id === id);
+    if (!r) return;
+    const nid = genId();
+    resumeCollection.resumes.push({ id: nid, name: r.name + " (copy)", data: clone(r.data), updatedAt: Date.now() });
+    saveCollection();
+    renderResumeSidebar();
+  }
+
+  let data = initCollection();
 
   function migrate(d) {
     const base = clone(DEFAULT_DATA);
@@ -742,6 +970,7 @@
     saveTimer = setTimeout(() => {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        saveCurrentToCollection();
         flashSaved();
       } catch (e) { /* storage full / disabled */ }
     }, 250);
@@ -1744,6 +1973,66 @@
     renderAnalysis();
     const jdInput = document.getElementById("jdInput");
     if (jdInput) setTimeout(() => jdInput.focus(), 100);
+  });
+
+  /* ============================================================
+     RESUME SIDEBAR
+     ============================================================ */
+  function renderResumeSidebar() {
+    const list = document.getElementById("rsList");
+    if (!list) return;
+    list.innerHTML = "";
+    resumeCollection.resumes.forEach(r => {
+      const active = r.id === activeResumeId;
+      const item = document.createElement("div");
+      item.className = "rs-item" + (active ? " active" : "");
+      const date = new Date(r.updatedAt || Date.now());
+      const dateStr = date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      item.innerHTML =
+        '<span class="rs-name">' + escapeHtml(r.name) + '</span>' +
+        '<span class="rs-date">' + dateStr + '</span>' +
+        '<span class="rs-actions">' +
+          '<button class="rs-act" data-act="switch" data-id="' + r.id + '" title="Switch">\u25B6</button>' +
+          '<button class="rs-act" data-act="rename" data-id="' + r.id + '" title="Rename">\u270E</button>' +
+          '<button class="rs-act" data-act="dup" data-id="' + r.id + '" title="Duplicate">\uD83D\uDCCB</button>' +
+          '<button class="rs-act del" data-act="del" data-id="' + r.id + '" title="Delete">\u2715</button>' +
+        '</span>';
+      if (!active) item.addEventListener("click", (e) => { if (e.target.closest('.rs-act')) return; switchResume(r.id); });
+      list.appendChild(item);
+    });
+    // Delegate actions
+    list.querySelectorAll("[data-act]").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        switch (btn.dataset.act) {
+          case "switch": switchResume(id); break;
+          case "rename": {
+            const r = resumeCollection.resumes.find(x => x.id === id);
+            if (!r) return;
+            const name = prompt("Resume name:", r.name);
+            if (name && name.trim()) renameResume(id, name.trim());
+            break;
+          }
+          case "dup": duplicateResume(id); break;
+          case "del": deleteResume(id); break;
+        }
+      });
+    });
+  }
+
+  function toggleResumeSidebar(force) {
+    const show = typeof force === "boolean" ? force : !document.body.classList.contains("show-resumes");
+    document.body.classList.toggle("show-resumes", show);
+    if (show) renderResumeSidebar();
+  }
+
+  document.getElementById("btnResumes").addEventListener("click", () => toggleResumeSidebar());
+  document.getElementById("rsClose").addEventListener("click", () => toggleResumeSidebar(false));
+  document.getElementById("rsNewBtn").addEventListener("click", () => {
+    const name = prompt("New resume name:", "");
+    createResume(name || "Untitled Resume");
+    renderResumeSidebar();
   });
 
   /* ============================================================
