@@ -501,11 +501,13 @@
     <button class="btn" id="btnAnalysis">Analysis</button>
     <button class="btn" id="btnJdMatch">JD Match</button>
     <button class="btn" id="btnImport">Import JSON</button>
+    <button class="btn" id="btnImportHtml">Import HTML</button>
     <button class="btn" id="btnExport">Export JSON</button>
     <button class="btn" id="btnDownloadDoc">Download as DOC</button>
     <button class="btn danger" id="btnReset">Reset</button>
     <button class="btn primary" id="btnPrint">Print / Save PDF</button>
     <input type="file" id="fileInput" accept="application/json,.json" hidden />
+    <input type="file" id="fileInputHtml" accept="text/html,.html" hidden />
   </div>
 
   <div class="layout">
@@ -607,6 +609,129 @@
     if (merged.projects) merged.projects.forEach(p => { if (!p.github) p.github = ''; if (!p.live) p.live = ''; });
     if (merged.experience) merged.experience.forEach(j => { if (!j.bullets) j.bullets = []; });
     return merged;
+  }
+
+  function parseResumeHtml(html) {
+    const d = clone(DEFAULT_DATA);
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    const nameEl = div.querySelector('.name');
+    if (nameEl) d.name = nameEl.textContent.trim();
+    const titleEl = div.querySelector('.title');
+    if (titleEl) d.title = titleEl.textContent.trim();
+    const contactEl = div.querySelector('.contact');
+    if (contactEl) {
+      d.contacts = [];
+      const parts = contactEl.innerHTML.split(/<br\s*\/?>/i);
+      parts.forEach(block => {
+        const temp = document.createElement('div');
+        temp.innerHTML = block;
+        const items = temp.querySelectorAll('a, span');
+        if (!items.length) {
+          const text = temp.textContent.trim();
+          if (text) {
+            text.split(/\s*[·|]\s*/).filter(Boolean).forEach(t => {
+              const trimmed = t.trim();
+              if (trimmed) d.contacts.push({ text: trimmed, href: '', break: false });
+            });
+          }
+          return;
+        }
+        items.forEach(el => {
+          const text = el.textContent.trim();
+          if (!text) return;
+          const href = el.tagName === 'A' ? (el.getAttribute('href') || '') : '';
+          d.contacts.push({ text, href, break: false });
+        });
+        if (items.length) d.contacts[d.contacts.length - 1].break = true;
+      });
+    }
+    const sections = div.querySelectorAll('section');
+    sections.forEach(sec => {
+      const h2 = sec.querySelector('h2');
+      if (!h2) return;
+      const heading = h2.textContent.trim().toLowerCase();
+      if (heading === 'summary') {
+        const p = sec.querySelector('p');
+        if (p) d.summary = p.textContent.trim();
+      } else if (heading === 'skills') {
+        d.skills = [];
+        const rows = sec.querySelectorAll('.row');
+        rows.forEach(row => {
+          const k = row.querySelector('.k');
+          const v = row.querySelector('.v');
+          d.skills.push({ k: k ? k.textContent.trim() : '', v: v ? v.textContent.trim() : '' });
+        });
+        if (!d.skills.length) {
+          const ps = sec.querySelectorAll('p');
+          ps.forEach(p => {
+            const text = p.textContent.trim();
+            const sep = text.indexOf(':');
+            if (sep > 0) d.skills.push({ k: text.slice(0, sep).trim(), v: text.slice(sep + 1).trim() });
+            else if (text) d.skills.push({ k: '', v: text });
+          });
+        }
+      } else if (heading === 'experience') {
+        d.experience = [];
+        const jobs = sec.querySelectorAll('.job-head, .job-title-line');
+        if (jobs.length) {
+          jobs.forEach(jh => {
+            const jobContainer = jh.closest('div') || jh.parentElement;
+            const titleEl = jh.querySelector('.job-title') || jh;
+            const dateEl = jh.querySelector('.job-date') || (jh.nextElementSibling && jh.nextElementSibling.matches('.job-date') ? jh.nextElementSibling : null);
+            const orgEl = jobContainer.querySelector('.job-org, .job-company-line');
+            const ul = jobContainer.querySelector('ul');
+            const bullets = ul ? [...ul.querySelectorAll('li')].map(li => li.textContent.trim()).filter(Boolean) : [];
+            d.experience.push({
+              title: titleEl.textContent.replace(/\s*\|\s*\d{2}\/\d{4}.*$/, '').trim(),
+              date: dateEl ? dateEl.textContent.trim() : '',
+              org: orgEl ? orgEl.textContent.trim() : '',
+              bullets: bullets.length ? bullets : ['']
+            });
+          });
+        } else {
+          const uls = sec.querySelectorAll('ul');
+          uls.forEach(ul => {
+            const prev = ul.previousElementSibling;
+            let title = '', date = '', org = '';
+            if (prev && prev.matches('.job-title, .job-title-line, p')) {
+              title = prev.textContent.trim();
+              const dateMatch = title.match(/\|\s*(\d{2}\/\d{4}.*)$/);
+              if (dateMatch) { date = dateMatch[1].trim(); title = title.replace(/\s*\|\s*\d{2}\/\d{4}.*$/, '').trim(); }
+              const orgPrev = prev.previousElementSibling;
+              if (orgPrev && orgPrev.matches('.job-org, .job-company-line, p')) org = orgPrev.textContent.trim();
+            }
+            const bullets = [...ul.querySelectorAll('li')].map(li => li.textContent.trim()).filter(Boolean);
+            d.experience.push({ title, date, org, bullets: bullets.length ? bullets : [''] });
+          });
+        }
+      } else if (heading === 'key projects' || heading === 'projects') {
+        d.projects = [];
+        const items = sec.querySelectorAll('.proj, li, p');
+        items.forEach(item => {
+          const b = item.querySelector('b, strong');
+          const title = b ? b.textContent.trim() : '';
+          const body = item.textContent.replace(title, '').trim();
+          if (title || body) d.projects.push({ title, body, github: '', live: '' });
+        });
+      } else if (heading === 'education') {
+        d.education = [];
+        const rows = sec.querySelectorAll('.edu-row, .edu-line, p');
+        rows.forEach(row => {
+          const deg = row.querySelector('.edu-deg') || row;
+          const dateEl = row.querySelector('.edu-date');
+          const text = deg.textContent.trim();
+          const dateText = dateEl ? dateEl.textContent.trim() : '';
+          const dateSep = text.indexOf('|');
+          if (dateSep > 0) {
+            d.education.push({ degree: text.slice(0, dateSep).trim(), date: text.slice(dateSep + 1).trim() });
+          } else {
+            d.education.push({ degree: text, date: dateText });
+          }
+        });
+      }
+    });
+    return d;
   }
 
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
@@ -1417,6 +1542,28 @@
         renderPreview();
       } catch (e) {
         alert("Could not import: the file is not valid resume JSON.");
+      }
+      ev.target.value = "";
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("btnImportHtml").addEventListener("click", () => {
+    document.getElementById("fileInputHtml").click();
+  });
+  document.getElementById("fileInputHtml").addEventListener("change", (ev) => {
+    const file = ev.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = parseResumeHtml(reader.result);
+        data = migrate(parsed);
+        save();
+        renderForm();
+        renderPreview();
+      } catch (e) {
+        alert("Could not parse the HTML file. Make sure it's a valid resume HTML file.");
       }
       ev.target.value = "";
     };
