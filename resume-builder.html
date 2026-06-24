@@ -499,6 +499,7 @@
     <span class="ats-pill" id="atsPill" title="Open ATS &amp; writing analysis">ATS &mdash;</span>
     <span class="saved-pill" id="savedPill"></span>
     <button class="btn" id="btnAnalysis">Analysis</button>
+    <button class="btn" id="btnJdMatch">JD Match</button>
     <button class="btn" id="btnImport">Import JSON</button>
     <button class="btn" id="btnExport">Export JSON</button>
     <button class="btn" id="btnDownloadDoc">Download as DOC</button>
@@ -988,6 +989,107 @@
   }
 
   /* ============================================================
+     JD (Job Description) MATCHING
+     ============================================================ */
+  let jdText = '';
+  try { jdText = localStorage.getItem('resumeJd') || ''; } catch (e) {}
+
+  function saveJdText(text) {
+    jdText = text;
+    try { localStorage.setItem('resumeJd', text); } catch (e) {}
+  }
+
+  const JD_STOP_WORDS = new Set([
+    'the','and','for','are','with','this','from','your','that','have','will','our',
+    'you','not','but','all','can','has','per','its','each','which','their','they',
+    'what','been','was','were','who','about','also','just','more','some','than',
+    'very','then','them','into','over','after','other','such','both','between',
+    'while','without','when','where','how','why','should','could','would','may',
+    'might','shall','need','must','because','before','during','through','only',
+    'own','same','down','off','above','again','few','most','nor','no','out','up',
+    'on','at','to','in','it','is','of','by','as','an','or','be','do','does','did',
+    'done','being','having','get','use','able','well','along','across','among',
+    'via','etc','like','much','many','way','ways','day','days','year','years',
+    'time','work','working','role','position','job','team','new','good','great',
+    'best','top','excellent','proven','related','relevant','level','minimum',
+    'required','preferred','plus','responsibilities','requirements',
+    'qualifications','skills','experience','education','ability','abilities',
+    'knowledge','understanding','proficiency','familiarity','expertise',
+    'background','track','record','demonstrated','strong','solid','deep',
+    'hands-on','senior','lead','principal','staff','junior','preferably'
+  ]);
+
+  function extractJdKeywords(text) {
+    const all = [];
+    const techs = text.match(/\b[A-Z][A-Z0-9+#.-]{2,}\b/g) || [];
+    techs.forEach(t => { if (t.length >= 2) all.push(t.toLowerCase()); });
+    const words = text.toLowerCase().match(/\b[a-z][a-z0-9+#.-]{2,}\b/g) || [];
+    words.forEach(w => { if (!JD_STOP_WORDS.has(w) && !/^\d/.test(w)) all.push(w); });
+    const phrases = text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}\b/g) || [];
+    phrases.forEach(p => all.push(p.toLowerCase()));
+    const freq = {};
+    all.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
+    return Object.entries(freq).sort((a, b) => b[1] - a[1]).map(([w]) => w);
+  }
+
+  function getResumeTextLower() {
+    const parts = [];
+    const add = s => { const t = stripMd(s); if (t) parts.push(t); };
+    add(data.summary);
+    data.skills.forEach(s => { add(s.k); add(s.v); });
+    data.experience.forEach(j => { add(j.title); add(j.org); (j.bullets || []).forEach(b => add(b)); });
+    data.projects.forEach(p => { add(p.title); add(p.body); });
+    data.education.forEach(e => add(e.degree));
+    return parts.join(' ').toLowerCase();
+  }
+
+  function analyzeJdMatch() {
+    if (!jdText.trim()) return null;
+    const jdKeywords = extractJdKeywords(jdText);
+    const resumeLower = getResumeTextLower();
+    const matched = [], missing = [], partial = [];
+    jdKeywords.forEach(kw => {
+      if (resumeLower.includes(kw)) { matched.push(kw); return; }
+      const parts = kw.split(/\s+/);
+      if (parts.length > 1 && parts.some(p => p.length > 3 && resumeLower.includes(p))) { partial.push(kw); return; }
+      if (kw.endsWith('s') && resumeLower.includes(kw.slice(0, -1))) { matched.push(kw); return; }
+      const plural = kw + 's';
+      if (resumeLower.includes(plural)) { matched.push(kw); return; }
+      missing.push(kw);
+    });
+    const total = jdKeywords.length;
+    const partialScore = total > 0 ? Math.min(100, Math.round(((matched.length + partial.length * 0.5) / total) * 100)) : 0;
+    return { total, matched, partial, missing, keywords: jdKeywords, score: Math.max(0, partialScore) };
+  }
+
+  function isResumeEmpty() {
+    const hasSkills = data.skills.some(s => stripMd(s.k) || stripMd(s.v));
+    const hasExp = data.experience.some(j => stripMd(j.title) || (j.bullets || []).some(b => stripMd(b)));
+    const hasSummary = !!stripMd(data.summary);
+    return !hasSkills && !hasExp && !hasSummary;
+  }
+
+  function generateFromJd() {
+    if (!jdText.trim()) return;
+    const lines = jdText.split('\n').filter(l => l.trim());
+    const firstLine = lines.find(l => { const t = l.trim(); return t.length > 15 && !/^(about|description|overview|summary|requirements|qualifications|responsibilities)/i.test(t); });
+    if (firstLine) data.title = firstLine.trim().replace(/^(.{0,3})(Senior|Lead|Principal|Staff|Junior|Entry Level)\s*/i, '$2 ');
+    const jdKeywords = extractJdKeywords(jdText);
+    const resumeLower = getResumeTextLower();
+    const newSkills = [...new Set(jdKeywords.filter(kw => !resumeLower.includes(kw)))].slice(0, 20);
+    if (newSkills.length > 0) {
+      data.skills.push({ k: 'JD Alignment', v: newSkills.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', ') });
+    }
+    const paras = jdText.split(/\n\s*\n/).filter(p => p.trim().length > 30);
+    if (!stripMd(data.summary) && paras.length > 0) {
+      data.summary = paras[0].replace(/^(About|Overview|Description|Summary):?\s*/i, '').trim();
+    }
+    save();
+    renderForm();
+    renderPreview();
+  }
+
+  /* ============================================================
      ATS & WRITING ANALYSIS (offline, heuristic)
      ============================================================ */
   const ACTION_VERBS = {
@@ -1175,6 +1277,45 @@
     const tierWord = a.score >= 80 ? "Strong" : a.score >= 60 ? "Needs work" : "Weak";
 
     let html = '<button class="ap-close" id="apClose" title="Close">\u00D7</button>';
+
+    // JD Match section
+    html += '<h3>Job Description Match</h3>';
+    const jdResult = analyzeJdMatch();
+    html += '<textarea id="jdInput" style="width:100%;min-height:70px;background:var(--app-panel-2);border:1px solid var(--app-border);border-radius:8px;color:var(--app-text);padding:8px 10px;font-size:12px;resize:vertical;margin-bottom:6px;font-family:inherit;" placeholder="Paste a job description here to check alignment\u2026">' + escapeHtml(jdText) + '</textarea>';
+    html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">';
+    html += '<button class="btn" id="btnJdAnalyze" style="font-size:11px;padding:5px 10px;">Analyze Match</button>';
+    html += '<button class="btn" id="btnJdGenerate" style="font-size:11px;padding:5px 10px;">Generate Resume from JD</button>';
+    html += '</div>';
+    if (jdResult) {
+      const jdTier = jdResult.score >= 80 ? 'good' : jdResult.score >= 60 ? 'mid' : 'low';
+      html += '<div class="score-card" style="margin-bottom:8px;"><div class="score-num s-' + jdTier + '">' + jdResult.score + '<small>/100</small></div>' +
+        '<div class="score-meta"><b class="s-' + jdTier + '">JD Keyword Match</b>' +
+        '<div class="score-bar"><i class="bg-' + jdTier + '" style="width:' + jdResult.score + '%"></i></div>' +
+        '<span style="font-size:10px;color:var(--app-muted);">' + jdResult.matched.length + '/' + jdResult.total + ' keywords matched' +
+        (jdResult.partial.length ? ' (' + jdResult.partial.length + ' partial)' : '') + '</span></div></div>';
+      if (jdResult.missing.length > 0) {
+        html += '<div style="margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:var(--app-danger);">' + jdResult.missing.length + ' skill gaps found</span>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">';
+        jdResult.missing.slice(0, 20).forEach(kw => {
+          html += '<span style="font-size:10px;color:var(--app-danger);background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:4px;padding:2px 6px;">' + escapeHtml(kw.charAt(0).toUpperCase() + kw.slice(1)) + '</span>';
+        });
+        if (jdResult.missing.length > 20) html += '<span style="font-size:10px;color:var(--app-muted);padding:2px 4px;">+' + (jdResult.missing.length - 20) + ' more</span>';
+        html += '</div></div>';
+      } else {
+        html += '<div class="empty-good">\u2713 All JD keywords present in your resume</div>';
+      }
+      const recs = [];
+      if (jdResult.score < 70) recs.push('Add missing keywords to your Skills section and weave them into experience bullets.');
+      if (jdResult.score < 50) recs.push('Rewrite your summary to mirror the JD language and requirements.');
+      if (jdResult.missing.length > 3 && jdResult.missing.length <= 10) recs.push('Consider adding a "JD Alignment" skill row with: ' + jdResult.missing.slice(0, 5).map(kw => escapeHtml(kw.charAt(0).toUpperCase() + kw.slice(1))).join(', ') + '.');
+      if (recs.length) {
+        html += '<div style="font-size:11px;font-weight:600;color:var(--app-muted);margin:6px 0 4px;">Recommendations</div>';
+        recs.forEach(r => { html += '<div class="issue info" style="margin-bottom:4px;"><div class="msg">' + r + '</div></div>'; });
+      }
+    } else {
+      html += '<div class="ap-note">Paste a job description above and click <b>Analyze Match</b> to see how well your resume aligns.</div>';
+    }
+
     html += '<h3>ATS Score</h3>';
     html += '<div class="score-card"><div class="score-num s-' + tier + '">' + a.score + '<small>/100</small></div>' +
             '<div class="score-meta"><b class="s-' + tier + '">' + tierWord + '</b>' +
@@ -1216,6 +1357,25 @@
     panel.innerHTML = html;
     const close = document.getElementById("apClose");
     if (close) close.addEventListener("click", () => document.body.classList.remove("show-analysis"));
+    const jdInput = document.getElementById("jdInput");
+    if (jdInput) {
+      const analyzeBtn = document.getElementById("btnJdAnalyze");
+      const generateBtn = document.getElementById("btnJdGenerate");
+      if (analyzeBtn) {
+        analyzeBtn.addEventListener("click", () => {
+          saveJdText(jdInput.value);
+          renderAnalysis();
+        });
+        jdInput.addEventListener("input", () => { /* debounced auto-save */ clearTimeout(jdInput._timer); jdInput._timer = setTimeout(() => saveJdText(jdInput.value), 500); });
+      }
+      if (generateBtn) {
+        generateBtn.addEventListener("click", () => {
+          saveJdText(jdInput.value);
+          generateFromJd();
+          renderAnalysis();
+        });
+      }
+    }
   }
 
   /* ============================================================
@@ -1423,6 +1583,12 @@
   }
   document.getElementById("btnAnalysis").addEventListener("click", () => toggleAnalysis());
   document.getElementById("atsPill").addEventListener("click", () => toggleAnalysis(true));
+  document.getElementById("btnJdMatch").addEventListener("click", () => {
+    document.body.classList.add("show-analysis");
+    renderAnalysis();
+    const jdInput = document.getElementById("jdInput");
+    if (jdInput) setTimeout(() => jdInput.focus(), 100);
+  });
 
   /* ============================================================
      INIT
