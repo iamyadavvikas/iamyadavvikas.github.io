@@ -11,7 +11,6 @@
   <meta name="keywords" content="SRE, DevOps, Platform Engineer, AWS, Terraform, Packer, ECS, Splunk, Observability, MLOps, Hyderabad" />
   <link rel="canonical" href="https://iamyadavvikas.github.io/" />
 
-  <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Vikas Yadav — Senior SRE / DevOps Engineer" />
   <meta property="og:description" content="Platform & Infrastructure SRE/DevOps · AWS · Terraform · Observability · MLOps" />
@@ -29,6 +28,7 @@
 <body>
   <a class="skip-link" href="#about">Skip to content</a>
   <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
   <header class="nav">
     <div class="nav-inner">
       <a href="#top" class="brand">VY<span>.</span></a>
@@ -39,6 +39,7 @@
         <a href="#projects">Projects</a>
         <a href="#education">Education</a>
         <a href="#contact" class="nav-cta">Contact</a>
+        <a href="resume-builder.html" class="btn-ghost-sm">Resume Builder</a>
         <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle light / dark theme" title="Toggle theme">
           <span class="ti" aria-hidden="true">☾</span>
         </button>
@@ -82,26 +83,16 @@
           <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
           <span class="terminal-title">vikas@sre — ~/platform</span>
         </div>
-        <pre class="terminal-body"><code><span class="l"><span class="p">$</span> terraform <span class="k">plan</span> -out tfplan</span>
-<span class="l c">Plan: 12 to add, 3 to change, 0 to destroy.</span>
-<span class="l"><span class="p">$</span> terraform <span class="k">apply</span> tfplan</span>
-<span class="l c">Apply complete. Resources: 12 added.</span>
-<span class="l"><span class="p">$</span> aws ecs update-service --desired-count 150</span>
-<span class="l ok">✔ service stable — autoscaling healthy</span>
-<span class="l"><span class="p">$</span> splunk status</span>
-<span class="l ok">✔ license-master up · heavy-forwarders 3/3</span>
-<span class="l"><span class="p">$</span> oncall ack --sev1 &amp;&amp; git revert HEAD</span>
-<span class="l ok">✔ rollback shipped · MTTR 6m</span>
-<span class="l"><span class="p">$</span> <span class="cursor">▋</span></span></code></pre>
+        <pre class="terminal-body" id="terminalBody"><code><span class="l"><span class="cursor">▋</span></span></code></pre>
       </aside>
     </section>
 
     <!-- STATS -->
-    <section class="stats">
-      <div class="stat"><strong>4+</strong><span>Years at Shutterfly</span></div>
-      <div class="stat"><strong>100+</strong><span>Terraform PRs merged</span></div>
-      <div class="stat"><strong>4</strong><span>Environments owned (dev→prod)</span></div>
-      <div class="stat"><strong>~25%</strong><span>On-call alert noise cut</span></div>
+    <section class="stats" id="statsSection">
+      <div class="stat" data-target="4" data-suffix="+"><strong>0</strong><span>Years at Shutterfly</span></div>
+      <div class="stat" data-target="100" data-suffix="+"><strong>0</strong><span>Terraform PRs merged</span></div>
+      <div class="stat" data-target="4" data-suffix=""><strong>0</strong><span>Environments owned (dev→prod)</span></div>
+      <div class="stat" data-target="25" data-suffix="%"><strong>0</strong><span>On-call alert noise cut</span></div>
     </section>
 
     <!-- ABOUT -->
@@ -154,41 +145,50 @@
         <h2>Skills</h2>
       </div>
       <div class="skills-grid">
-        <div class="skill-card">
+        <div class="skill-card" data-level="95">
           <h3>Infrastructure as Code</h3>
           <p>Terraform (advanced — multi-account, multi-environment, modules, plan/apply via PR), Packer (golden AMIs / immutable infra), CloudFormation</p>
+          <div class="skill-bar"><i></i></div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" data-level="90">
           <h3>Cloud &amp; Linux</h3>
           <p>AWS — ECS, EC2 / ASGs &amp; Launch Templates, S3, Lambda, SQS, IAM, ELB/ALB, VPC / Security Groups, SSM, Route53 · Linux (RHEL, Ubuntu) · Shell scripting</p>
+          <div class="skill-bar"><i></i></div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" data-level="88">
           <h3>CI/CD &amp; Automation</h3>
           <p>Jenkins (Job DSL, Pipeline DSL, Groovy), Git / GitHub Enterprise, infra &amp; jobs as code, deployment automation, environment provisioning &amp; decommissioning</p>
+          <div class="skill-bar"><i></i></div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" data-level="82">
           <h3>Containers &amp; Orchestration</h3>
           <p>Docker, Amazon ECS (capacity &amp; service scaling)</p>
+          <div class="skill-bar"><i></i></div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" data-level="92">
           <h3>Observability &amp; SRE</h3>
           <p>Splunk (built &amp; operate), SignalFX, VividCortex, CloudWatch, RUM / synthetics / APM, SLOs / SLIs, incident response, RCAs, fast revert-based rollback</p>
+          <div class="skill-bar"><i></i></div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" data-level="85">
           <h3>Security</h3>
           <p>IAM design &amp; least-privilege cleanup, internal-only ELB lockdown, security groups / network segmentation, CVE / vulnerability exception management, bastion access</p>
+          <div class="skill-bar"><i></i></div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" data-level="90">
           <h3>Programming &amp; Scripting</h3>
           <p>Python (advanced), Bash, Groovy, SQL, REST APIs</p>
+          <div class="skill-bar"><i></i></div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" data-level="75">
           <h3>Cloud-Native &amp; DevOps Tooling</h3>
           <p>EKS / Kubernetes, Helm, ArgoCD, Prometheus, Grafana, Ansible, GitHub Actions, OpenTelemetry, PagerDuty</p>
+          <div class="skill-bar"><i></i></div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" data-level="60">
           <h3>Actively learning</h3>
           <p>vLLM, KServe, Triton, MLflow</p>
+          <div class="skill-bar"><i></i></div>
         </div>
       </div>
     </section>
@@ -235,22 +235,34 @@
       </div>
       <div class="projects-grid">
         <article class="project-card">
-          <h3>Splunk Logging Platform</h3>
-          <p class="project-sub">Built from scratch</p>
-          <p>Set up the license master and heavy forwarders entirely in Terraform (Launch Templates, ASGs, AMIs). A self-healing, code-managed logging layer the Photos &amp; Media team uses every day for troubleshooting.</p>
-          <div class="tags"><span>Terraform</span><span>ASG</span><span>Packer AMI</span><span>Splunk</span></div>
+          <div class="project-overlay">
+            <h3>Splunk Logging Platform</h3>
+            <p class="project-sub">Built from scratch</p>
+          </div>
+          <div class="project-body">
+            <p>Set up the license master and heavy forwarders entirely in Terraform (Launch Templates, ASGs, AMIs). A self-healing, code-managed logging layer the Photos &amp; Media team uses every day for troubleshooting.</p>
+            <div class="tags"><span>Terraform</span><span>ASG</span><span>Packer AMI</span><span>Splunk</span></div>
+          </div>
         </article>
         <article class="project-card">
-          <h3>Cloud Cost Optimization</h3>
-          <p class="project-sub">Three levers, all reversible</p>
-          <p>Decommissioning stale ASGs, Launch Templates &amp; dead resources; Jenkins Job DSL teardown-as-code for S3 and SSM; and the media image-recompression pipeline (raw → recompressed in S3) for ongoing storage savings.</p>
-          <div class="tags"><span>Jenkins JobDSL</span><span>S3</span><span>SSM</span><span>FinOps</span></div>
+          <div class="project-overlay">
+            <h3>Cloud Cost Optimization</h3>
+            <p class="project-sub">Three levers, all reversible</p>
+          </div>
+          <div class="project-body">
+            <p>Decommissioning stale ASGs, Launch Templates &amp; dead resources; Jenkins Job DSL teardown-as-code for S3 and SSM; and the media image-recompression pipeline (raw → recompressed in S3) for ongoing storage savings.</p>
+            <div class="tags"><span>Jenkins JobDSL</span><span>S3</span><span>SSM</span><span>FinOps</span></div>
+          </div>
         </article>
         <article class="project-card">
-          <h3>Observability &amp; Incident Response</h3>
-          <p class="project-sub">Build, monitor, recover</p>
-          <p>Built and run Splunk. Own VividCortex DB monitoring (slow-query &amp; query-plan analysis on RDS). Use SignalFX, RUM, APM &amp; synthetics across the photo-upload and CreateMedia KPIs. Fast revert PRs as the main rollback during incidents.</p>
-          <div class="tags"><span>SignalFX</span><span>VividCortex</span><span>RUM/APM</span><span>RCA</span></div>
+          <div class="project-overlay">
+            <h3>Observability &amp; Incident Response</h3>
+            <p class="project-sub">Build, monitor, recover</p>
+          </div>
+          <div class="project-body">
+            <p>Built and run Splunk. Own VividCortex DB monitoring (slow-query &amp; query-plan analysis on RDS). Use SignalFX, RUM, APM &amp; synthetics across the photo-upload and CreateMedia KPIs. Fast revert PRs as the main rollback during incidents.</p>
+            <div class="tags"><span>SignalFX</span><span>VividCortex</span><span>RUM/APM</span><span>RCA</span></div>
+          </div>
         </article>
       </div>
     </section>
@@ -302,8 +314,23 @@
           <span class="ci">⬇</span> Download my résumé (PDF)
         </a>
       </div>
+      <form class="contact-form" id="contactForm">
+        <div class="cf-row">
+          <input type="text" placeholder="Your name" required />
+          <input type="email" placeholder="Your email" required />
+        </div>
+        <textarea rows="3" placeholder="Your message..." required></textarea>
+        <button type="submit" class="btn btn-primary cf-btn">
+          <span>Send Message</span>
+          <span class="cf-plane">✈</span>
+        </button>
+      </form>
     </section>
   </main>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
 
   <footer class="footer">
     <p>© <span id="year"></span> Vikas Yadav · Built with plain HTML &amp; CSS · Hosted on GitHub Pages</p>
@@ -312,7 +339,7 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Theme toggle (persists in localStorage, defaults to dark)
+    // ── Theme toggle ──
     (function () {
       const root = document.documentElement;
       const btn = document.getElementById('themeToggle');
@@ -322,8 +349,7 @@
         icon.textContent = t === 'light' ? '☀' : '☾';
         btn.setAttribute('aria-pressed', t === 'light');
       };
-      const saved = localStorage.getItem('theme');
-      apply(saved || 'dark');
+      apply(localStorage.getItem('theme') || 'dark');
       btn.addEventListener('click', () => {
         const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         apply(next);
@@ -331,25 +357,118 @@
       });
     })();
 
-    // Smooth active-link highlight on scroll
-    const links = [...document.querySelectorAll('.nav-links a')];
-    const sections = links
-      .map(l => document.querySelector(l.getAttribute('href')))
-      .filter(Boolean);
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          const id = '#' + e.target.id;
-          links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === id));
+    // ── Live typing terminal ──
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const body = document.getElementById('terminalBody');
+      if (!body) return;
+      const code = body.querySelector('code');
+      const lines = [
+        { text: '$ terraform plan -out tfplan', cls: '' },
+        { text: 'Plan: 12 to add, 3 to change, 0 to destroy.', cls: 'c' },
+        { text: '$ terraform apply tfplan', cls: '' },
+        { text: 'Apply complete. Resources: 12 added.', cls: 'c' },
+        { text: '$ aws ecs update-service --desired-count 150', cls: '' },
+        { text: '✔ service stable — autoscaling healthy', cls: 'ok' },
+        { text: '$ splunk status', cls: '' },
+        { text: '✔ license-master up · heavy-forwarders 3/3', cls: 'ok' },
+        { text: '$ oncall ack --sev1 && git revert HEAD', cls: '' },
+        { text: '✔ rollback shipped · MTTR 6m', cls: 'ok' },
+      ];
+      let lineIdx = 0, charIdx = 0, isPrompt = true;
+      let currentLineEl = null;
+
+      function typeNext() {
+        if (lineIdx >= lines.length) {
+          setTimeout(() => { lineIdx = 0; charIdx = 0; isPrompt = true; code.innerHTML = ''; typeNext(); }, 4000);
+          return;
         }
-      });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    sections.forEach(s => obs.observe(s));
+        const line = lines[lineIdx];
+        if (isPrompt) {
+          currentLineEl = document.createElement('span');
+          currentLineEl.className = 'l' + (line.cls ? ' ' + line.cls : '');
+          currentLineEl.textContent = '';
+          code.appendChild(currentLineEl);
+          charIdx = 0;
+          isPrompt = false;
+        }
+        if (charIdx < line.text.length) {
+          currentLineEl.textContent += line.text[charIdx];
+          charIdx++;
+          const delay = line.text[charIdx - 1] === ' ' ? 30 : 25 + Math.random() * 40;
+          setTimeout(typeNext, delay);
+        } else {
+          lineIdx++;
+          isPrompt = true;
+          setTimeout(typeNext, 400 + Math.random() * 300);
+        }
+      }
+      setTimeout(typeNext, 600);
+    })();
 
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // ── Animated stat counters ──
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const stats = document.querySelectorAll('#statsSection .stat');
+      const observed = new Set();
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (!e.isIntersecting || observed.has(e.target)) return;
+          observed.add(e.target);
+          obs.unobserve(e.target);
+          const el = e.target;
+          const target = parseInt(el.dataset.target) || 0;
+          const suffix = el.dataset.suffix || '';
+          const strong = el.querySelector('strong');
+          if (!strong) return;
+          const duration = 1800;
+          const start = performance.now();
+          function tick(now) {
+            const t = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - t, 3);
+            const val = Math.round(eased * target);
+            strong.textContent = val + suffix;
+            if (t < 1) requestAnimationFrame(tick);
+            else strong.textContent = target + suffix;
+          }
+          requestAnimationFrame(tick);
+        });
+      }, { threshold: 0.3 });
+      stats.forEach(s => obs.observe(s));
+    })();
 
-    // Scroll-reveal: fade/slide elements in as they enter the viewport
-    if (!reduceMotion) {
+    // ── Skill bars animation ──
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const cards = document.querySelectorAll('.skill-card[data-level]');
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          obs.unobserve(e.target);
+          const bar = e.target.querySelector('.skill-bar i');
+          if (bar) bar.style.width = e.target.dataset.level + '%';
+        });
+      }, { threshold: 0.2 });
+      cards.forEach(c => obs.observe(c));
+    })();
+
+    // ── Nav active highlight ──
+    (function () {
+      const links = [...document.querySelectorAll('.nav-links a')];
+      const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            const id = '#' + e.target.id;
+            links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === id));
+          }
+        });
+      }, { rootMargin: '-45% 0px -50% 0px' });
+      sections.forEach(s => obs.observe(s));
+    })();
+
+    // ── Scroll reveal ──
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const revealEls = document.querySelectorAll(
         '.section-head, .about-text, .about-card, .skill-card, .job, .project-card, .edu-card, .contact-link, .contact-lead, .stat'
       );
@@ -365,18 +484,22 @@
       revealEls.forEach(el => revObs.observe(el));
     }
 
-    // Scroll progress bar
+    // ── Scroll progress bar & back-to-top ──
     const bar = document.getElementById('scrollProgress');
+    const topBtn = document.getElementById('backToTop');
     const onScroll = () => {
       const h = document.documentElement;
       const max = h.scrollHeight - h.clientHeight;
-      bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+      const pct = max > 0 ? h.scrollTop / max : 0;
+      bar.style.transform = 'scaleX(' + pct + ')';
+      topBtn.classList.toggle('visible', h.scrollTop > 400);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+    topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-    // Rotating role word in hero
-    if (!reduceMotion) {
+    // ── Rotating role word ──
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const words = ['production', 'pipelines', 'observability', 'infrastructure', 'on-call'];
       const node = document.getElementById('rotateWord');
       let i = 0;
@@ -386,6 +509,40 @@
         setTimeout(() => { node.textContent = words[i]; node.classList.remove('swap'); }, 280);
       }, 2600);
     }
+
+    // ── Contact form ──
+    (function () {
+      const form = document.getElementById('contactForm');
+      if (!form) return;
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const btn = form.querySelector('.cf-btn');
+        btn.classList.add('sending');
+        btn.querySelector('.cf-plane').textContent = '✓';
+        setTimeout(() => {
+          btn.classList.remove('sending');
+          btn.querySelector('.cf-plane').textContent = '✈';
+          form.querySelectorAll('input, textarea').forEach(el => el.value = '');
+          alert('Thanks for reaching out! I\'ll get back to you soon.');
+        }, 1200);
+      });
+    })();
+
+    // ── Project card tilt ──
+    (function () {
+      const cards = document.querySelectorAll('.project-card');
+      cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - 0.5;
+          const y = (e.clientY - rect.top) / rect.height - 0.5;
+          card.style.transform = 'perspective(800px) rotateY(' + (x * 8) + 'deg) rotateX(' + (-y * 8) + 'deg) translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = '';
+        });
+      });
+    })();
   </script>
 </body>
 </html>
