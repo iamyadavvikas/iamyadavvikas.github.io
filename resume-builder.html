@@ -602,6 +602,102 @@
       margin-bottom: 10px;
     }
     .rs-new-btn:hover { border-color: var(--app-accent); background: rgba(45,212,191,0.06); }
+
+    /* ============================================================
+       GITHUB SYNC MODAL
+       ============================================================ */
+    .github-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .github-overlay.open { opacity: 1; pointer-events: auto; }
+    .github-modal {
+      background: var(--app-panel);
+      border: 1px solid var(--app-border);
+      border-radius: 16px;
+      padding: 28px;
+      width: 440px;
+      max-width: 92vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+    }
+    .github-modal h3 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--app-accent);
+      margin: 0 0 6px;
+    }
+    .github-modal .gm-desc {
+      font-size: 12px;
+      color: var(--app-muted);
+      margin: 0 0 18px;
+      line-height: 1.5;
+    }
+    .github-modal label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--app-muted);
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+    .github-modal input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--app-border);
+      background: var(--app-panel-2);
+      color: var(--app-text);
+      font-size: 13px;
+      outline: none;
+    }
+    .github-modal input:focus { border-color: var(--app-accent); }
+    .github-modal .gm-status {
+      font-size: 12px;
+      margin-top: 14px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: none;
+      line-height: 1.4;
+    }
+    .github-modal .gm-status.show { display: block; }
+    .github-modal .gm-status.ok { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+    .github-modal .gm-status.err { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.25); }
+    .github-modal .gm-status.loading { background: rgba(56,189,248,0.12); color: #38bdf8; border: 1px solid rgba(56,189,248,0.25); }
+    .github-modal .gm-close {
+      float: right;
+      background: none;
+      border: none;
+      color: var(--app-muted);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .github-modal .gm-close:hover { color: var(--app-text); }
+    .github-modal .gm-btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .github-modal .gm-btns .btn { flex: 1; }
+    .github-modal .gm-info {
+      font-size: 11px;
+      color: var(--app-muted);
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+    .github-modal .gm-info a { color: var(--app-accent); }
   </style>
 </head>
 <body>
@@ -616,6 +712,7 @@
     <button class="btn" id="btnImport">Import JSON</button>
     <button class="btn" id="btnImportHtml">Import HTML</button>
     <button class="btn" id="btnExport">Export JSON</button>
+    <button class="btn" id="btnGithubSync" style="border-color:var(--app-accent);color:var(--app-accent)">Publish</button>
     <button class="btn" id="btnDownloadDoc">Download as DOC</button>
     <button class="btn danger" id="btnReset">Reset</button>
     <button class="btn primary" id="btnPrint">Print / Save PDF</button>
@@ -642,6 +739,40 @@
     <button class="rs-new-btn" id="rsNewBtn">+ New Resume</button>
     <div id="rsList"></div>
   </aside>
+
+  <div class="github-overlay" id="githubOverlay">
+    <div class="github-modal">
+      <button class="gm-close" id="githubClose">&times;</button>
+      <h3>GitHub Sync</h3>
+      <p class="gm-desc">Publish your resume to the repo so it's live on GitHub Pages.</p>
+
+      <label>Personal Access Token (PAT)</label>
+      <input type="password" id="githubPat" placeholder="ghp_..." autocomplete="off" />
+
+      <label>Repository</label>
+      <input type="text" id="githubRepo" value="iamyadavvikas/iamyadavvikas.github.io" />
+
+      <label>Branch</label>
+      <input type="text" id="githubBranch" value="main" />
+
+      <label>File path</label>
+      <input type="text" id="githubPath" value="resume-data.json" />
+
+      <div class="gm-status" id="githubStatus"></div>
+
+      <div class="gm-btns">
+        <button class="btn primary" id="btnGithubPublish">Publish to GitHub</button>
+        <button class="btn" id="btnGithubLoad">Load from GitHub</button>
+      </div>
+
+      <div class="gm-info">
+        <strong>How to get a PAT:</strong>
+        GitHub &rarr; Settings &rarr; Developer settings &rarr; Personal access tokens &rarr; Fine-grained tokens.
+        Give it <strong>Contents</strong> read/write access for the repo above.
+        <a href="https://github.com/settings/tokens?type=beta" target="_blank">Create one here</a>.
+      </div>
+    </div>
+  </div>
 
   <script>
   "use strict";
@@ -2034,6 +2165,135 @@
     createResume(name || "Untitled Resume");
     renderResumeSidebar();
   });
+
+  /* ============================================================
+     GITHUB SYNC
+     ============================================================ */
+  const GITHUB_CONFIG_KEY = "resumeGithubConfig";
+
+  let githubConfig = { pat: "", repo: "iamyadavvikas/iamyadavvikas.github.io", branch: "main", path: "resume-data.json" };
+  try {
+    const raw = localStorage.getItem(GITHUB_CONFIG_KEY);
+    if (raw) githubConfig = Object.assign(githubConfig, JSON.parse(raw));
+  } catch (e) {}
+
+  function saveGithubConfig() {
+    try { localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig)); } catch (e) {}
+  }
+
+  function syncGithubModal() {
+    document.getElementById("githubPat").value = githubConfig.pat;
+    document.getElementById("githubRepo").value = githubConfig.repo;
+    document.getElementById("githubBranch").value = githubConfig.branch;
+    document.getElementById("githubPath").value = githubConfig.path;
+  }
+
+  function readGithubModal() {
+    githubConfig.pat = document.getElementById("githubPat").value.trim();
+    githubConfig.repo = document.getElementById("githubRepo").value.trim();
+    githubConfig.branch = document.getElementById("githubBranch").value.trim();
+    githubConfig.path = document.getElementById("githubPath").value.trim();
+    saveGithubConfig();
+  }
+
+  function setGithubStatus(msg, type) {
+    const el = document.getElementById("githubStatus");
+    el.textContent = msg;
+    el.className = "gm-status show " + (type || "ok");
+  }
+
+  function clearGithubStatus() {
+    const el = document.getElementById("githubStatus");
+    el.textContent = "";
+    el.className = "gm-status";
+  }
+
+  function openGithubModal() {
+    syncGithubModal();
+    clearGithubStatus();
+    document.getElementById("githubOverlay").classList.add("open");
+  }
+
+  function closeGithubModal() {
+    document.getElementById("githubOverlay").classList.remove("open");
+  }
+
+  async function publishToGithub() {
+    readGithubModal();
+    const { pat, repo, branch, path } = githubConfig;
+    if (!pat) { setGithubStatus("Enter a Personal Access Token first.", "err"); return; }
+    if (!repo) { setGithubStatus("Enter a repository (owner/repo).", "err"); return; }
+
+    setGithubStatus("Publishing...", "loading");
+
+    try {
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+
+      let sha = null;
+      try {
+        const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`, {
+          headers: { Authorization: `Bearer ${pat}`, Accept: "application/vnd.github.v3+json" }
+        });
+        if (getRes.ok) {
+          const existing = await getRes.json();
+          sha = existing.sha;
+        }
+      } catch (e) {}
+
+      const body = { message: "Update resume data via Resume Builder", content, branch };
+      if (sha) body.sha = sha;
+
+      const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${pat}`, "Content-Type": "application/json", Accept: "application/vnd.github.v3+json" },
+        body: JSON.stringify(body)
+      });
+
+      if (!putRes.ok) {
+        const err = await putRes.json();
+        throw new Error(err.message || "Publish failed");
+      }
+
+      const result = await putRes.json();
+      setGithubStatus("Published successfully! Live at " + result.content.html_url, "ok");
+    } catch (e) {
+      setGithubStatus(e.message, "err");
+    }
+  }
+
+  async function loadFromGithub() {
+    readGithubModal();
+    const { repo, branch, path } = githubConfig;
+    if (!repo) { setGithubStatus("Enter a repository (owner/repo).", "err"); return; }
+
+    setGithubStatus("Loading...", "loading");
+
+    try {
+      const url = `https://raw.githubusercontent.com/${repo}/${branch}/${path}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Could not fetch resume data (HTTP " + res.status + ")");
+
+      const parsed = await res.json();
+      if (!parsed || typeof parsed !== "object") throw new Error("Invalid resume data");
+
+      data = migrate(parsed);
+      save();
+      renderForm();
+      renderPreview();
+      setGithubStatus("Loaded from GitHub and applied.", "ok");
+    } catch (e) {
+      setGithubStatus(e.message, "err");
+    }
+  }
+
+  // Event listeners
+  document.getElementById("btnGithubSync").addEventListener("click", openGithubModal);
+  document.getElementById("githubClose").addEventListener("click", closeGithubModal);
+  document.getElementById("githubOverlay").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeGithubModal();
+  });
+  document.getElementById("btnGithubPublish").addEventListener("click", publishToGithub);
+  document.getElementById("btnGithubLoad").addEventListener("click", loadFromGithub);
 
   /* ============================================================
      INIT
