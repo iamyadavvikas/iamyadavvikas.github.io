@@ -1,0 +1,132 @@
+{
+  "name": "VIKAS YADAV",
+  "title": "SRE / DevOps Engineer · Platform & Infrastructure · AWS · Terraform · Observability · MLOps",
+  "contacts": [
+    {
+      "text": "vikaskashi896@gmail.com",
+      "href": "mailto:vikaskashi896@gmail.com",
+      "break": false
+    },
+    {
+      "text": "+91 72485 56138 (WhatsApp)",
+      "href": "",
+      "break": false
+    },
+    {
+      "text": "Hyderabad, India",
+      "href": "",
+      "break": true
+    },
+    {
+      "text": "linkedin.com/in/vikas-yadav896",
+      "href": "https://linkedin.com/in/vikas-yadav896",
+      "break": false
+    },
+    {
+      "text": "github.com/iamyadavvikas",
+      "href": "https://github.com/iamyadavvikas",
+      "break": false
+    },
+    {
+      "text": "",
+      "href": "",
+      "break": false
+    },
+    {
+      "text": "Immediate joiner",
+      "href": "",
+      "break": false
+    }
+  ],
+  "summary": "Platform & Infrastructure SRE / DevOps engineer with 4 years at Shutterfly Inc. (consulting via Genpact), working on the Photos & Media platform. I own the Terraform code for our AWS setup across multiple accounts and four environments (dev, beta, stage, prod), with 100+ pull requests merged after peer review.\n\nDay to day I work with AWS (ECS, EC2/ASG, S3, IAM, ELB/ALB, VPC, SSM, Route53), Terraform, Packer for golden AMIs, and Jenkins Job DSL. I built and run our Splunk logging platform (license master plus heavy forwarders) from scratch. I also handle ECS capacity, IAM least-privilege cleanups, network security hardening, infrastructure decommissioning, and a 24×7 on-call rotation.\n\nI run the infrastructure that sits under our media and AI services — the image pipeline, the recommendation engine, and AI config — rather than training the models myself. MLOps and LLM-serving infrastructure (vLLM, KServe, MLflow) are an active learning track for me right now.",
+  "skills": [
+    {
+      "k": "Infrastructure as Code",
+      "v": "Terraform (advanced — multi-account, multi-environment, modules, plan/apply via PR), Packer (golden AMIs / immutable infrastructure), CloudFormation"
+    },
+    {
+      "k": "Cloud & Linux",
+      "v": "AWS (ECS, EC2 / Auto Scaling Groups & Launch Templates, S3, Lambda, SQS, IAM, ELB / ALB, VPC / Security Groups, SSM, Route53), Linux (RHEL, Ubuntu), Shell scripting"
+    },
+    {
+      "k": "CI/CD & Automation",
+      "v": "Jenkins (Job DSL, Pipeline DSL, Groovy), GitHub Actions, Git / GitHub Enterprise, infrastructure & jobs as code, deployment automation, environment provisioning, decommissioning automation"
+    },
+    {
+      "k": "Containers & Orchestration",
+      "v": "Docker, Amazon ECS (capacity & service scaling), Kubernetes / EKS, Helm, ArgoCD"
+    },
+    {
+      "k": "Observability & SRE",
+      "v": "Splunk (built & operate the logging platform), SignalFX, VividCortex, CloudWatch, Prometheus, Grafana, OpenTelemetry, PagerDuty, RUM / synthetics / APM, SLOs / SLIs, incident response, RCAs, fast revert-based rollback"
+    },
+    {
+      "k": "Security",
+      "v": "IAM design & least-privilege cleanup, internal-only ELB lockdown, security groups / network segmentation, CVE / vulnerability exception management, bastion / jumphost access"
+    },
+    {
+      "k": "Config Management",
+      "v": "Ansible"
+    },
+    {
+      "k": "Programming & Scripting",
+      "v": "Python (advanced), Bash, Groovy, SQL, REST APIs"
+    },
+    {
+      "k": "Actively learning",
+      "v": "vLLM, KServe, Triton, MLflow"
+    }
+  ],
+  "experience": [
+    {
+      "title": "Site Reliability & DevOps Engineer (Platform & Infrastructure)",
+      "date": "08/2022 – Present",
+      "org": "Shutterfly Inc. (via Genpact), Hyderabad — Photos & Media Platform",
+      "bullets": [
+        "Own the Terraform code for the Photos platform across multiple AWS accounts and four environments (dev, beta, stage, prod). **100+ merged pull requests**, separate state per environment, shared modules, and a PR + terraform plan review before anything goes to production.",
+        "Built our **Splunk logging platform from scratch** — license master and heavy forwarders — using Terraform Launch Templates, Auto Scaling Groups, and AMIs. A self-healing, code-managed logging layer the whole team uses for troubleshooting.",
+        "Maintain a **Packer golden-AMI pipeline** for the Splunk and application fleet. Immutable, hardened images mean no configuration drift — every instance boots the same way and rebuilds cleanly.",
+        "Automate infrastructure lifecycle in **Jenkins Job DSL** (Groovy), including S3 and SSM teardown as code with scoped least-privilege permissions. Upgraded the Terraform runner image (0.12 → 0.13) without breaking the pipeline.",
+        "Manage **ECS capacity and scaling** for the platform. Raised the production cluster's max task count to 150 after checking the underlying capacity, giving autoscaling more room under load.",
+        "Led **network security and IAM hardening**: locked down the internal geocoding (Nominatim / OSM) ELB to internal-only traffic across all four environments, cleaned up Lambda IAM roles, and managed CVE / vulnerability exceptions in the scanner.",
+        "Drive **cloud cost optimisation** across the Photos & Media estate: decommissioning stale ASGs, Launch Templates, and dead resources; Jenkins Job DSL teardown automation for S3 and SSM; and the media image-recompression pipeline (raw → recompressed in S3). All shipped as reviewed, reversible PRs.",
+        "Consolidated the EC2 fleet onto **Launch Templates**: built new Auto Scaling Groups and removed legacy Launch Configurations in Terraform. No downtime, rolled out one environment at a time.",
+        "Run **observability and on-call**: own VividCortex database monitoring for the RDS fleet (slow-query and query-plan analysis), and work with SignalFX, RUM, synthetics, and APM across the photo-upload and CreateMedia paths. 24×7 on-call rotation.",
+        "Handled several **high-severity production incidents** as primary on-call: a media-cloud traffic surge of 4.4M+ calls that overloaded the user-service Redis cluster; a 45-minute Sev-1 outage from a Terraform / Akamai misconfiguration (fixed with a revert PR); and a 1-hour platform-wide upload failure triggered by a third-party ingestion API.",
+        "Cut **on-call alert fatigue by ~25%** across the Photos, Media, and Upload dashboard groups via a domain-wide SignalFX cleanup — retired 147 old detectors and 617 stale charts.",
+        "Lead **RCAs and post-incident follow-ups** for critical failures — drove long-term fixes like enforcing timeouts on social-media ingestion calls and fixing autoscaling instability surfaced in load tests.",
+        "Support the media and AI platform at the infrastructure layer: own the S3 bucket policy for the media-image-recompressor, the ECS capacity AI services scale on, and AI config via SSM parameters. MLOps as the reliability layer, not model training."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "Splunk Logging Platform (built from scratch):",
+      "body": "Set up the license master and heavy forwarders entirely in Terraform (Launch Templates, ASGs, AMIs). A self-healing, code-managed logging layer the Photos & Media team uses every day.",
+      "github": "",
+      "live": ""
+    },
+    {
+      "title": "Cloud Cost Optimisation:",
+      "body": "Decommissioning stale ASGs, Launch Templates, and dead resources; Jenkins Job DSL teardown-as-code for S3 and SSM; and the media image-recompression pipeline (raw → recompressed in S3) for ongoing storage savings. All shipped as reviewed, reversible PRs.",
+      "github": "",
+      "live": ""
+    },
+    {
+      "title": "Observability & Incident Response:",
+      "body": "Built and run Splunk. Own VividCortex database monitoring (slow-query and query-plan analysis on RDS). Use SignalFX, RUM, APM, and synthetics across the photo-upload and CreateMedia KPIs. Fast revert PRs are the main rollback during incidents.",
+      "github": "",
+      "live": ""
+    }
+  ],
+  "education": [
+    {
+      "degree": "**Master of Technology (M.Tech)** — Indian Institute of Technology Kharagpur (IIT Kharagpur)",
+      "date": "2020 – 2022"
+    },
+    {
+      "degree": "**Bachelor of Technology (B.Tech)** — University of Petroleum and Energy Studies (UPES), Dehradun, India",
+      "date": "2015 – 2019"
+    }
+  ]
+}
